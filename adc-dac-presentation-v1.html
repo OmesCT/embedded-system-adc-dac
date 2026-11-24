@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADC &amp; DAC — การแปลงสัญญาณอนาล็อกและดิจิทัล</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a1020; --surface:#111a2e; --surface2:#18243f; --text:#e9eefb; --muted:#9db0d3;
+  --accent:#22d3ee; --accent2:#fbbf24; --good:#34d399; --bad:#fb7185; --line:rgba(255,255,255,.12);
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+  --mono:"JetBrains Mono",ui-monospace,Consolas,"Courier New",monospace;
+}
+:root[data-theme="light"]{
+  --bg:#f4f7fc; --surface:#ffffff; --surface2:#e8eefb; --text:#0e1a33; --muted:#4d5d7e;
+  --accent:#0e7490; --accent2:#b45309; --good:#047857; --bad:#be123c; --line:rgba(14,26,51,.14);
+  --shadow:0 10px 28px rgba(30,50,90,.12);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);overflow:hidden;
+  font-family:"Sarabun","Noto Sans Thai","Leelawadee UI","Tahoma",system-ui,sans-serif;
+  font-size:clamp(16px,1.55vw,22px);line-height:1.55}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent2);outline-offset:2px}
+
+/* ---------- deck ---------- */
+#progress{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));z-index:20;transition:width .35s}
+#deck{position:fixed;inset:0 0 56px 0}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;overflow-y:auto;
+  padding:clamp(18px,3.6vw,48px) clamp(16px,6vw,96px);
+  opacity:0;visibility:hidden;transform:translateX(34px);
+  transition:opacity .35s,transform .35s,visibility 0s .35s}
+.slide.before{transform:translateX(-34px)}
+.slide.active{opacity:1;visibility:visible;transform:none;transition-delay:0s}
+.wrap{width:100%;max-width:1200px;margin:auto}
+.eyebrow{font-family:var(--mono);font-size:.62em;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 .5em}
+h1{font-size:clamp(2rem,5.2vw,4.2rem);line-height:1.12;margin:.1em 0 .3em;font-weight:800}
+h2{font-size:clamp(1.55rem,3.3vw,2.6rem);line-height:1.2;margin:0 0 .5em;font-weight:800}
+h3{font-size:1.08em;margin:0 0 .35em;font-weight:700}
+p{margin:.35em 0}
+.lead{color:var(--muted);font-size:1.08em;max-width:60ch}
+.muted{color:var(--muted)}
+.small{font-size:.8em}
+.grad{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+ul.clean{list-style:none;padding:0;margin:.4em 0}
+ul.clean li{padding:.28em 0 .28em 1.5em;position:relative}
+ul.clean li::before{content:"";position:absolute;left:.2em;top:.85em;width:.55em;height:.55em;border-radius:50%;background:var(--accent)}
+
+/* ---------- blocks ---------- */
+.grid{display:grid;gap:clamp(10px,1.6vw,20px)}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr))}
+.sg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.sg .stat b{font-size:clamp(1rem,2.2vw,1.35em);overflow-wrap:anywhere}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:clamp(12px,1.6vw,22px);box-shadow:var(--shadow)}
+.card.hl{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),var(--shadow)}
+.num{display:inline-grid;place-items:center;width:1.9em;height:1.9em;border-radius:50%;background:var(--accent);color:#04121a;font-weight:800;margin-right:.5em;font-size:.9em}
+.formula{font-family:var(--mono);font-weight:700;background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:.55em .9em;display:block;margin:.5em 0;color:var(--accent2);overflow-x:auto;white-space:nowrap}
+code,.mono{font-family:var(--mono)}
+pre{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:.9em 1.1em;overflow-x:auto;font-family:var(--mono);font-size:.74em;line-height:1.55;margin:.4em 0}
+.k{color:var(--accent)} .n{color:var(--accent2)} .c{color:var(--muted)} .s{color:var(--good)}
+.pill{display:inline-block;padding:.1em .7em;border-radius:99px;background:var(--surface2);border:1px solid var(--line);font-size:.8em;margin:.15em .2em .15em 0}
+.stat{background:var(--surface2);border-radius:12px;padding:.55em .8em;border:1px solid var(--line)}
+.stat b{display:block;font-family:var(--mono);font-size:1.35em;color:var(--accent2)}
+.stat span{font-size:.75em;color:var(--muted)}
+.cv{width:100%;height:clamp(210px,36vh,340px);display:block;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.ctl{display:block;margin:.5em 0}
+.ctl span{display:block;font-size:.88em;color:var(--muted)}
+.ctl b{color:var(--text);font-family:var(--mono)}
+input[type=range]{width:100%;accent-color:var(--accent);height:1.6em}
+input[type=number]{font:inherit;font-family:var(--mono);background:var(--surface2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:.3em .6em;width:9em}
+.btn{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:.45em 1em;transition:transform .12s,background .2s}
+.btn:hover{background:var(--accent);color:#04121a}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--accent);color:#04121a;font-weight:700;border-color:transparent}
+.btn.primary:hover{filter:brightness(1.1)}
+.btn[aria-pressed=true]{background:var(--accent);color:#04121a;font-weight:700}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:.5em;align-items:center}
+.status{border-radius:12px;padding:.55em .9em;font-weight:700;margin:.5em 0;border:1px solid var(--line)}
+.status.ok{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good);border-color:var(--good)}
+.status.warn{background:color-mix(in srgb,var(--accent2) 18%,transparent);color:var(--accent2);border-color:var(--accent2)}
+.status.bad{background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad);border-color:var(--bad)}
+table{border-collapse:collapse;width:100%;font-size:.82em}
+th,td{border-bottom:1px solid var(--line);padding:.55em .7em;text-align:left;vertical-align:top}
+th{color:var(--accent);font-size:.9em;white-space:nowrap}
+tr.hl td{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.legend{display:flex;flex-wrap:wrap;gap:.3em 1.2em;font-size:.78em;color:var(--muted);margin:.4em 0}
+.legend i{display:inline-block;width:.9em;height:.9em;border-radius:3px;margin-right:.4em;vertical-align:-.1em}
+
+/* ---------- flow ---------- */
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:.25em;margin:.8em 0}
+.node{flex:1 1 92px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.55em .35em;text-align:center;font-size:.78em}
+.node b{display:block;font-size:1.05em}
+.node.star{border-color:var(--accent2);background:color-mix(in srgb,var(--accent2) 14%,var(--surface));box-shadow:0 0 0 1px var(--accent2)}
+.arrow{align-self:center;color:var(--accent);font-size:1em}
+
+/* ---------- title ---------- */
+#s-title .wrap{position:relative;z-index:1}
+#bgwave{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.8;pointer-events:none}
+.chipbit{font-family:var(--mono);background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:.15em .5em;font-size:.75em;display:inline-block;margin:.15em}
+
+/* ---------- SAR / DAC ---------- */
+.sw{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin:.6em 0}
+.sw button{padding:.5em 0;border-radius:12px;border:1px solid var(--line);background:var(--surface2);font-family:var(--mono);font-weight:700;display:flex;flex-direction:column;align-items:center;gap:.1em}
+.sw button small{font-size:.6em;color:var(--muted);font-weight:500}
+.sw button[aria-pressed=true]{background:var(--accent);color:#04121a;border-color:transparent}
+.sw button[aria-pressed=true] small{color:#04323f}
+.bar{height:22px;background:var(--surface2);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .2s}
+#sarTable td,#sarTable th{font-family:var(--mono);font-size:.9em}
+#sarTable tr.pending td{opacity:.28}
+#sarTable tr.now td{background:color-mix(in srgb,var(--accent2) 22%,transparent)}
+.b1{color:var(--good);font-weight:800}.b0{color:var(--muted)}.bt{color:var(--accent2);font-weight:800;text-decoration:underline}
+
+/* ---------- quiz ---------- */
+#quiz{max-width:900px;margin:0 auto}
+#s-quiz .wrap{margin-top:clamp(0px,5vh,48px);margin-bottom:auto} /* ยึดด้านบน กันกรอบกระโดดตอนเฉลย */
+.hearts{color:var(--bad)}
+.hud{display:flex;flex-wrap:wrap;gap:.5em 1.2em;align-items:center;justify-content:space-between;margin-bottom:.6em;font-family:var(--mono);font-size:.85em}
+.hud .hearts{font-size:1.15em;letter-spacing:.1em}
+.tbar{height:10px;background:var(--surface2);border-radius:99px;overflow:hidden;margin-bottom:.8em}
+.tbar>i{display:block;height:100%;width:100%;background:var(--accent);transition:background .3s}
+.tbar>i.low{background:var(--bad)}
+.qtext{font-size:1.25em;font-weight:700;margin:.2em 0 .7em}
+.choices{display:grid;gap:.55em;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr))}
+.choice{display:flex;gap:.7em;align-items:center;text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:.7em .9em;transition:transform .12s,border-color .2s,background .2s}
+.choice:hover:not(:disabled){border-color:var(--accent);transform:translateY(-2px)}
+.choice kbd{font-family:var(--mono);background:var(--surface2);border-radius:8px;padding:.1em .55em;font-size:.8em;color:var(--accent2);flex:none}
+.choice.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 20%,var(--surface))}
+.choice.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 20%,var(--surface))}
+.choice.gone{visibility:hidden}
+.choice.dim{opacity:.5}
+.explain{margin-top:.8em;background:var(--surface2);border-left:5px solid var(--accent);border-radius:12px;padding:.7em 1em}
+.explain.good{border-color:var(--good)}.explain.bad{border-color:var(--bad)}
+.big{font-size:clamp(2.4rem,7vw,4.4rem);font-weight:800;font-family:var(--mono);color:var(--accent2);line-height:1}
+.diff{font-size:.7em;font-family:var(--mono);padding:.1em .6em;border-radius:99px;background:var(--surface2);color:var(--muted)}
+
+/* ---------- nav ---------- */
+#nav{position:fixed;left:0;right:0;bottom:0;height:56px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);
+  border-top:1px solid var(--line);display:flex;align-items:center;gap:.5em;padding:0 clamp(10px,2vw,24px);z-index:15}
+#nav .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted);font-size:.78em;text-align:center}
+#nav button{background:var(--surface);border:1px solid var(--line);border-radius:10px;min-width:40px;height:38px;padding:0 .7em}
+#nav button:hover{background:var(--accent);color:#04121a}
+#count{font-family:var(--mono);font-size:.8em;min-width:5.5em;text-align:center}
+#notes{position:fixed;left:clamp(10px,2vw,24px);right:clamp(10px,2vw,24px);bottom:66px;z-index:16;background:var(--surface);border:2px solid var(--accent2);border-radius:14px;padding:.7em 1em;box-shadow:var(--shadow);display:none;font-size:.9em}
+#notes.on{display:block}
+#notes b{color:var(--accent2)}
+@media (max-width:640px){#nav .t{display:none}.sw{gap:3px}}
+@media (prefers-reduced-motion:reduce){.slide,#progress,.bar>i,.choice{transition:none}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<main id="deck">
+
+<!-- 1 ───────── Title ───────── -->
+<section class="slide" id="s-title" data-title="หน้าปก"
+  data-note="ทักทาย แนะนำตัว และบอกว่าวันนี้จะพาดูว่า 'โลกอนาล็อก' คุยกับ 'ไมโครคอนโทรลเลอร์' ได้ยังไง และท้ายคาบมีเกมให้เล่น">
+  <canvas id="bgwave" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <p class="eyebrow">Embedded System · AIoT Project</p>
+    <h1>การแปลงสัญญาณ<br><span class="grad">อนาล็อก ↔ ดิจิทัล</span></h1>
+    <p class="lead">Analog-to-Digital (ADC) &amp; Digital-to-Analog (DAC) Conversion<br>สะพานเชื่อมระหว่างโลกจริงกับโลกของ AI</p>
+    <p style="margin-top:1.6em"><span class="pill">ผู้นำเสนอ: ชื่อ-นามสกุล (รหัสนักศึกษา)</span><span class="pill">ชื่อ-นามสกุล (รหัสนักศึกษา)</span></p>
+    <p class="muted small">กด <kbd class="chipbit">→</kbd> เพื่อไปต่อ · <kbd class="chipbit">F</kbd> เต็มจอ · <kbd class="chipbit">N</kbd> โน้ตผู้พูด · <kbd class="chipbit">T</kbd> สลับโหมดสว่าง/มืด</p>
+  </div>
+</section>
+
+<!-- 2 ───────── Agenda ───────── -->
+<section class="slide" id="s-agenda" data-title="หัวข้อวันนี้"
+  data-note="ไล่หัวข้อสั้น ๆ ย้ำว่าเนื้อหามีของให้ลองเล่นเองได้ในสไลด์ และปิดท้ายด้วยมินิเกม">
+  <div class="wrap">
+    <p class="eyebrow">Agenda</p>
+    <h2>วันนี้เราจะพาไปดู…</h2>
+    <div class="grid g3">
+      <div class="card"><h3><span class="num">1</span>ทำไมต้องแปลงสัญญาณ</h3><p class="muted">อนาล็อก vs ดิจิทัล และตำแหน่งของ ADC/DAC ในระบบ AIoT</p></div>
+      <div class="card"><h3><span class="num">2</span>ADC ทำงานอย่างไร</h3><p class="muted">Sampling · Quantization · Encoding พร้อมแล็บให้ลองปรับเอง</p></div>
+      <div class="card"><h3><span class="num">3</span>กฎสำคัญ</h3><p class="muted">Nyquist, Aliasing, ความละเอียด (bit), LSB และสูตรคำนวณ</p></div>
+      <div class="card"><h3><span class="num">4</span>ประเภทของ ADC</h3><p class="muted">Flash · SAR · Sigma-Delta · Pipeline และดู SAR ทำงานทีละบิต</p></div>
+      <div class="card"><h3><span class="num">5</span>DAC และบอร์ดจริง</h3><p class="muted">วิธีสร้าง DAC, ESP32 / Arduino, ปัญหาที่เจอจริง และวิธีแก้</p></div>
+      <div class="card hl"><h3><span class="num">6</span>มินิเกม ADC Quest</h3><p class="muted">ตอบคำถาม 10 ข้อ จับเวลา 3 หัวใจ — ใครได้คะแนนสูงสุด?</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ───────── Why ───────── -->
+<section class="slide" id="s-why" data-title="ทำไมต้องแปลงสัญญาณ"
+  data-note="โลกจริงต่อเนื่อง (เส้นสีฟ้า) แต่คอมพิวเตอร์เก็บได้เป็นตัวเลขเป็นขั้น (เส้นสีส้ม) ADC พาเราจากฟ้าไปส้ม ส่วน DAC พากลับ">
+  <div class="wrap">
+    <p class="eyebrow">Why convert?</p>
+    <h2>โลกจริงเป็น <span class="grad">อนาล็อก</span> แต่ MCU เข้าใจแค่ <span class="grad">0 กับ 1</span></h2>
+    <div class="grid g2" style="align-items:center">
+      <div>
+        <ul class="clean">
+          <li><b>อนาล็อก</b> — ต่อเนื่องทั้ง <i>เวลา</i> และ <i>ค่า</i> เช่น อุณหภูมิ เสียง แสง ความชื้น แรงดันจากเซ็นเซอร์</li>
+          <li><b>ดิจิทัล</b> — ค่า <i>เป็นขั้น</i> และ <i>เป็นช่วงเวลา</i> เก็บเป็นเลขฐานสอง ประมวลผล เก็บ ส่ง และรันโมเดล AI ได้</li>
+          <li><b>ADC</b> พาข้อมูลจากโลกจริง <b>เข้า</b>ระบบดิจิทัล</li>
+          <li><b>DAC</b> พาผลลัพธ์ <b>ออก</b>ไปสั่งลำโพง มอเตอร์ หลอดไฟ</li>
+        </ul>
+      </div>
+      <div>
+        <canvas id="cWhy" class="cv" role="img" aria-label="กราฟเปรียบเทียบสัญญาณอนาล็อกต่อเนื่องกับสัญญาณดิจิทัลแบบขั้นบันได"></canvas>
+        <div class="legend"><span><i style="background:var(--accent)"></i>อนาล็อก (ต่อเนื่อง)</span><span><i style="background:var(--accent2)"></i>ดิจิทัล (สุ่ม + ปัดเป็นระดับ)</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 ───────── Pipeline ───────── -->
+<section class="slide" id="s-pipeline" data-title="ADC/DAC ในระบบ AIoT"
+  data-note="เชื่อมกับโปรเจคของเรา: ทุก AIoT ต้องมีขาเข้า (เซ็นเซอร์→ADC) และขาออก (DAC/PWM→actuator) AI อยู่กลางสายพานนี้">
+  <div class="wrap">
+    <p class="eyebrow">System view</p>
+    <h2>ADC/DAC อยู่ตรงไหนในระบบ <span class="grad">AIoT</span></h2>
+    <div class="flow" role="list">
+      <div class="node" role="listitem"><b>โลกจริง</b>อุณหภูมิ · เสียง · แสง</div><div class="arrow">→</div>
+      <div class="node" role="listitem"><b>เซ็นเซอร์</b>แปลงเป็นแรงดัน</div><div class="arrow">→</div>
+      <div class="node" role="listitem"><b>ปรับสัญญาณ</b>ขยาย · กรอง</div><div class="arrow">→</div>
+      <div class="node star" role="listitem"><b>ADC ★</b>อนาล็อก → ตัวเลข</div><div class="arrow">→</div>
+      <div class="node" role="listitem"><b>MCU + AI</b>ESP32 · TinyML</div><div class="arrow">→</div>
+      <div class="node star" role="listitem"><b>DAC / PWM ★</b>ตัวเลข → อนาล็อก</div><div class="arrow">→</div>
+      <div class="node" role="listitem"><b>Actuator</b>ลำโพง · มอเตอร์ · ปั๊ม</div>
+    </div>
+    <div class="grid g3" style="margin-top:1em">
+      <div class="card"><h3>ฟาร์มอัจฉริยะ</h3><p class="muted">เซ็นเซอร์ความชื้นดิน → <b>ADC</b> → โมเดลตัดสินใจ → <b>PWM</b> → ปั๊มน้ำ</p></div>
+      <div class="card"><h3>สั่งงานด้วยเสียง</h3><p class="muted">ไมโครโฟน → <b>ADC</b> (16 kHz) → โมเดล TinyML จับคำสั่ง → <b>DAC</b>/I²S → ลำโพงตอบกลับ</p></div>
+      <div class="card"><h3>เฝ้าระวังสุขภาพ</h3><p class="muted">สัญญาณหัวใจ ECG → <b>ADC</b> → AI ตรวจความผิดปกติ → แจ้งเตือนผ่านมือถือ</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ───────── ADC steps / simulator ───────── -->
+<section class="slide" id="s-steps" data-title="ADC 3 ขั้นตอน (แล็บ)"
+  data-note="ให้ผู้ฟังเห็นว่าข้อมูลที่ MCU ได้รับคือชุดตัวเลขด้านล่าง ไม่ใช่เส้นโค้ง ลองลดบิตให้เหลือ 2–3 บิตจะเห็นความหยาบชัดเจน แล้วเพิ่ม fs ให้เห็นว่ารายละเอียดตามเวลาเพิ่มขึ้น">
+  <div class="wrap">
+    <p class="eyebrow">How ADC works · Lab 1</p>
+    <h2>ADC ทำงาน <span class="grad">3 ขั้นตอน</span></h2>
+    <div class="grid g3" style="margin-bottom:.8em">
+      <div class="card"><h3><span class="num">1</span>Sampling</h3><p class="muted small">สุ่มอ่านค่าแรงดันเป็นช่วงเวลาเท่า ๆ กัน (อัตรา <b>fs</b>)</p></div>
+      <div class="card"><h3><span class="num">2</span>Quantization</h3><p class="muted small">ปัดค่าที่อ่านได้ให้เป็น <b>ระดับ</b> ที่ใกล้ที่สุด (จำนวนระดับ = 2<sup>N</sup>)</p></div>
+      <div class="card"><h3><span class="num">3</span>Encoding</h3><p class="muted small">แปลงระดับเป็น <b>เลขฐานสอง N บิต</b> ส่งให้ MCU</p></div>
+    </div>
+    <div class="grid g2" style="align-items:start">
+      <div>
+        <canvas id="cSteps" class="cv" role="img" aria-label="กราฟจำลอง ADC แสดงสัญญาณต้นฉบับ จุดที่สุ่ม และค่าหลัง quantization"></canvas>
+        <div class="legend"><span><i style="background:var(--muted)"></i>สัญญาณจริง</span><span><i style="background:var(--accent)"></i>จุดที่สุ่ม</span><span><i style="background:var(--accent2)"></i>ค่าหลังปัดเป็นระดับ</span></div>
+      </div>
+      <div>
+        <label class="ctl"><span>อัตราสุ่ม fs = <b id="fsStepsV">16</b> ตัวอย่าง/วินาที (สัญญาณ 2 Hz)</span><input type="range" id="fsSteps" min="4" max="64" value="16"></label>
+        <label class="ctl"><span>ความละเอียด N = <b id="nStepsV">3</b> บิต</span><input type="range" id="nSteps" min="1" max="8" value="3"></label>
+        <p id="infoSteps" class="muted small"></p>
+        <h3 class="small" style="margin-top:.6em">สิ่งที่ MCU ได้รับ (8 ตัวอย่างแรก)</h3>
+        <div id="codesSteps"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 ───────── Sampling / Aliasing ───────── -->
+<section class="slide" id="s-sampling" data-title="Nyquist & Aliasing (แล็บ)"
+  data-note="กด preset ทีละอัน: สุ่มพอ → ใกล้ขอบ → alias สังเกตเส้นประสีแดงผ่านจุดสุ่มชุดเดียวกัน แปลว่า MCU แยกไม่ออกว่าเป็นสัญญาณไหน เปรียบเทียบกับล้อรถที่ดูเหมือนหมุนกลับในวิดีโอ">
+  <div class="wrap">
+    <p class="eyebrow">Sampling · Lab 2</p>
+    <h2>Nyquist: ต้องสุ่ม <span class="grad">เร็วกว่า 2 เท่า</span> ของความถี่สูงสุด</h2>
+    <span class="formula">f<sub>s</sub> &gt; 2 · f<sub>max</sub> &nbsp;&nbsp;|&nbsp;&nbsp; f<sub>alias</sub> = | f − k·f<sub>s</sub> | &nbsp; (k = จำนวนเต็มที่ใกล้ที่สุด)</span>
+    <div class="grid g2" style="align-items:start">
+      <div>
+        <canvas id="cAlias" class="cv" role="img" aria-label="กราฟสัญญาณจริง จุดสุ่ม และสัญญาณ alias"></canvas>
+        <div class="legend"><span><i style="background:var(--accent)"></i>สัญญาณจริง</span><span><i style="background:var(--accent2)"></i>จุดที่ ADC สุ่มได้</span><span><i style="background:var(--bad)"></i>สัญญาณที่ MCU "เห็น" (alias)</span></div>
+      </div>
+      <div>
+        <label class="ctl"><span>ความถี่สัญญาณ f = <b id="fAV">5</b> Hz</span><input type="range" id="fA" min="1" max="40" value="5"></label>
+        <label class="ctl"><span>อัตราสุ่ม f<sub>s</sub> = <b id="fsAV">40</b> Hz</span><input type="range" id="fsA" min="4" max="64" value="40"></label>
+        <div class="row"><button class="btn" data-pre="5,40">✔ สุ่มพอ</button><button class="btn" data-pre="18,40">⚠ ใกล้ขอบ</button><button class="btn" data-pre="36,40">✖ Aliasing</button></div>
+        <div id="statAlias" class="status ok"></div>
+        <p class="muted small">ทางแก้ในงานจริง: ใส่ <b>Anti-aliasing low-pass filter</b> ก่อนเข้า ADC เพื่อตัดความถี่เกิน f<sub>s</sub>/2 ทิ้ง</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ───────── Quantization ───────── -->
+<section class="slide" id="s-quant" data-title="Quantization & ความละเอียด (แล็บ)"
+  data-note="เพิ่มทีละบิต ขั้นบันไดละเอียดขึ้นเท่าตัว และ SQNR เพิ่ม ~6 dB ต่อบิต ชี้ว่า error ไม่เคยเป็น 0 แต่ไม่เกินครึ่งขั้น">
+  <div class="wrap">
+    <p class="eyebrow">Resolution · Lab 3</p>
+    <h2>จำนวนบิต = <span class="grad">ความละเอียด</span></h2>
+    <div class="grid g2" style="align-items:start">
+      <div>
+        <canvas id="cQuant" class="cv" style="height:clamp(250px,42vh,400px)" role="img" aria-label="กราฟ transfer function ของ ADC และความคลาดเคลื่อนจากการ quantization"></canvas>
+        <p id="noteQuant" class="muted small"></p>
+      </div>
+      <div>
+        <label class="ctl"><span>ความละเอียด N = <b id="nQV">3</b> บิต &nbsp;(Vref = 3.3 V)</span><input type="range" id="nQ" min="1" max="16" value="3"></label>
+        <div class="sg">
+          <div class="stat"><b id="qLevels">8</b><span>ระดับ = 2<sup>N</sup></span></div>
+          <div class="stat"><b id="qLsb">412 mV</b><span>1 LSB = Vref / 2<sup>N</sup></span></div>
+          <div class="stat"><b id="qErr">±206 mV</b><span>error สูงสุด = ±½ LSB</span></div>
+          <div class="stat"><b id="qSnr">19.8 dB</b><span>SQNR ≈ 6.02N + 1.76</span></div>
+        </div>
+        <span class="formula">LSB = V<sub>ref</sub> / 2<sup>N</sup></span>
+        <p class="muted small">เพิ่มทุก 1 บิต → ระดับเพิ่ม 2 เท่า, LSB เล็กลงครึ่งหนึ่ง, SQNR ดีขึ้น ≈ 6 dB (ค่าสูงสุดในอุดมคติ — ของจริงต่ำกว่าเพราะ noise)</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ───────── Calculator ───────── -->
+<section class="slide" id="s-calc" data-title="เครื่องคิดเลข ADC"
+  data-note="ตัวอย่างหลัก: ESP32 12 บิต 3.3 V ได้ 0.806 mV ต่อขั้น อ่านได้ 2048 ≈ 1.65 V ส่วน Arduino Uno 10 บิต 5 V ได้ 4.88 mV ต่อขั้น">
+  <div class="wrap">
+    <p class="eyebrow">Worked example</p>
+    <h2>คำนวณค่า ADC <span class="grad">ด้วยตัวเอง</span></h2>
+    <div class="grid g2" style="align-items:start">
+      <div class="card">
+        <div class="row" style="margin-bottom:.4em"><span class="muted small">ตั้งค่าตามบอร์ด:</span>
+          <button class="btn" id="preUno">Arduino Uno (5 V, 10 บิต)</button><button class="btn" id="preEsp">ESP32 (3.3 V, 12 บิต)</button></div>
+        <div class="row"><span class="muted small">Vref</span>
+          <button class="btn" data-vref="3.3" aria-pressed="true">3.3 V</button><button class="btn" data-vref="5" aria-pressed="false">5 V</button>
+          <span class="muted small" style="margin-left:.6em">ความละเอียด</span>
+          <button class="btn" data-bits="8" aria-pressed="false">8</button><button class="btn" data-bits="10" aria-pressed="false">10</button><button class="btn" data-bits="12" aria-pressed="true">12</button><button class="btn" data-bits="16" aria-pressed="false">16</button><span class="muted small">บิต</span></div>
+        <label class="ctl"><span>แรงดันอินพุต V<sub>in</sub> = <b id="calcVinV">1.650</b> V</span><input type="range" id="calcVin" min="0" max="3.3" step="0.001" value="1.65"></label>
+        <label class="ctl"><span>หรือกรอกค่า raw ที่ MCU อ่านได้ (0 – <b id="calcMax">4095</b>)</span><input type="number" id="calcCode" min="0" value="2048"></label>
+      </div>
+      <div>
+        <div class="sg">
+          <div class="stat"><b id="cLsb">0.806 mV</b><span>1 LSB</span></div>
+          <div class="stat"><b id="cCode">2048</b><span>ค่า raw (ทศนิยม)</span></div>
+          <div class="stat"><b id="cBin" style="font-size:1.05em">1000 0000 0000</b><span>เลขฐานสอง</span></div>
+          <div class="stat"><b id="cHex">0x800</b><span>เลขฐานสิบหก</span></div>
+        </div>
+        <span class="formula" id="cFormula"></span>
+        <p class="muted small" id="cErr"></p>
+        <p class="muted small">ค่าจริงของ ADC บนชิปอาจเพี้ยนจากสูตรอุดมคติ (offset, gain error, non-linearity) จึงต้อง calibrate — ดูสไลด์ "ปัญหาที่เจอจริง"</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 ───────── ADC Types ───────── -->
+<section class="slide" id="s-types" data-title="ประเภทของ ADC"
+  data-note="เน้นว่าไม่มีแบบไหนดีที่สุด เป็นการแลกกันระหว่างความเร็ว ความละเอียด และพลังงาน ADC ใน ESP32/Arduino เป็น SAR">
+  <div class="wrap">
+    <p class="eyebrow">Architectures</p>
+    <h2>ADC มีหลายแบบ — แลกกันระหว่าง <span class="grad">เร็ว · ละเอียด · ประหยัด</span></h2>
+    <div class="tw"><table>
+      <thead><tr><th>ชนิด</th><th>หลักการ</th><th>ความเร็ว</th><th>ความละเอียด</th><th>จุดเด่น / จุดด้อย</th><th>ใช้ในงาน</th></tr></thead>
+      <tbody>
+        <tr><td><b>Flash</b></td><td>ตัวเปรียบเทียบ 2<sup>N</sup>−1 ตัว ตัดสินพร้อมกัน ใช้ 1 รอบ</td><td>เร็วที่สุด</td><td>ต่ำ (~6–8 บิต)</td><td>เร็วมาก แต่กินไฟ/พื้นที่ชิปมาก</td><td>ออสซิลโลสโคป, วิดีโอ, สื่อสารความเร็วสูง</td></tr>
+        <tr class="hl"><td><b>SAR</b> ★</td><td>ค้นหาแบบทวิภาค (binary search) ใช้ N รอบ ต่อ N บิต — มี DAC อยู่ข้างใน</td><td>ปานกลาง (kSPS–MSPS)</td><td>ปานกลาง–สูง (8–18 บิต)</td><td>วงจรง่าย ประหยัดไฟ ไม่มี latency สลับช่องได้ดี</td><td><b>ADC ใน MCU ส่วนใหญ่ (ESP32, Arduino)</b>, data logger</td></tr>
+        <tr><td><b>Sigma-Delta (ΣΔ)</b></td><td>สุ่มเร็วมาก (oversampling) 1 บิต แล้วใช้ digital filter รวมเป็นค่าละเอียด</td><td>ช้า</td><td>สูงมาก (16–24+ บิต)</td><td>แม่นยำสูง แต่ไม่เหมาะสัญญาณเร็ว</td><td>เครื่องชั่ง (เช่น HX711), เซ็นเซอร์แม่นยำ, เครื่องมือแพทย์, เสียง</td></tr>
+        <tr><td><b>Pipeline</b></td><td>แบ่งเป็นหลายสเตจต่อกัน แต่ละสเตจแปลงไม่กี่บิตแล้วส่งส่วนที่เหลือต่อ</td><td>เร็ว (&gt; 5 MSPS ขึ้นไป)</td><td>ปานกลาง (8–16 บิต)</td><td>สมดุลระหว่าง Flash กับ SAR แต่มี latency</td><td>กล้อง/วิดีโอ, อัลตราซาวด์, วิทยุ</td></tr>
+      </tbody></table></div>
+    <p class="muted small" style="margin-top:.6em">ช่วงตัวเลขเป็นค่าโดยประมาณจากเอกสารผู้ผลิตชิป (Analog Devices) — แต่ละสถาปัตยกรรมมีสเปกที่ทับซ้อนกันได้ การเลือกขึ้นกับงานเป็นหลัก</p>
+  </div>
+</section>
+
+<!-- 10 ───────── SAR ───────── -->
+<section class="slide" id="s-sar" data-title="SAR ADC ทีละบิต (แล็บ)"
+  data-note="กดเริ่มแล้วอธิบายตามไป: เริ่มจากบิตสูงสุด ตั้งเป็น 1 แล้วสร้างแรงดันทดลองด้วย DAC ในตัว เทียบกับ Vin ถ้า Vin มากกว่าก็เก็บ 1 ไว้ ไม่งั้นทิ้งเป็น 0 ทำครบ 8 รอบได้ 8 บิต นี่คือสาเหตุที่ ADC ต้องมี DAC อยู่ข้างใน">
+  <div class="wrap">
+    <p class="eyebrow">Inside a SAR ADC · Lab 4</p>
+    <h2>SAR ADC = <span class="grad">เกมทายตัวเลข</span> 8 รอบ (8 บิต · 3.3 V)</h2>
+    <div class="grid g2" style="align-items:start">
+      <div>
+        <label class="ctl"><span>แรงดันอินพุต V<sub>in</sub> = <b id="sarVinV">2.10</b> V</span><input type="range" id="sarVin" min="0" max="3.29" step="0.01" value="2.1"></label>
+        <div class="row"><button class="btn primary" id="sarGo">▶ เริ่มทำงาน</button><button class="btn" id="sarReset">รีเซ็ต</button></div>
+        <canvas id="cSar" class="cv" style="margin-top:.6em;height:clamp(170px,26vh,260px)" role="img" aria-label="กราฟแรงดันทดลองของ DAC ค่อย ๆ เข้าใกล้ Vin"></canvas>
+        <div class="legend"><span><i style="background:var(--accent)"></i>V<sub>in</sub></span><span><i style="background:var(--accent2)"></i>V<sub>DAC</sub> ที่ลองในแต่ละรอบ</span></div>
+      </div>
+      <div>
+        <div class="tw"><table id="sarTable"><thead><tr><th>รอบ</th><th>โค้ดทดลอง</th><th>V<sub>DAC</sub></th><th>ผลเทียบกับ V<sub>in</sub></th></tr></thead><tbody></tbody></table></div>
+        <div id="sarResult" class="status warn" style="margin-top:.6em">กด "เริ่มทำงาน" เพื่อดู</div>
+        <p class="muted small">* ADC จริงเลื่อนเกณฑ์เทียบ ½ LSB เพื่อให้ error อยู่ใน ±½ LSB — ในแล็บนี้ใช้หลักเดียวกัน</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 ───────── DAC concept ───────── -->
+<section class="slide" id="s-dac" data-title="DAC: ตัวเลข → แรงดัน"
+  data-note="DAC ทำสิ่งตรงข้าม: รับเลขแล้วให้แรงดัน สูตรง่ายมาก ชิปที่ไม่มี DAC ก็ใช้ PWM + ตัวกรอง RC แทนได้ นี่คือเทคนิคที่ใช้บ่อยมากในโปรเจคจริง">
+  <div class="wrap">
+    <p class="eyebrow">DAC</p>
+    <h2>DAC: แปลง <span class="grad">ตัวเลข → แรงดัน</span></h2>
+    <span class="formula">V<sub>out</sub> = V<sub>ref</sub> × D / 2<sup>N</sup> &nbsp;&nbsp;(เช่น 3.3 V × 128 / 256 = 1.65 V)</span>
+    <div class="grid g4" style="margin-top:.6em">
+      <div class="card"><h3>R-2R Ladder</h3><p class="muted small">ใช้ตัวต้านทานแค่ 2 ค่า (R กับ 2R) ต่อเป็นบันได แต่ละบิตแบ่งแรงดันเหลือครึ่งหนึ่ง — แม่นง่าย พบในชิป DAC ทั่วไป</p></div>
+      <div class="card"><h3>Binary-weighted</h3><p class="muted small">ตัวต้านทานค่าต่างกันตามน้ำหนักบิต (R, 2R, 4R…) เข้าใจง่าย แต่ถ้าบิตเยอะต้องใช้ค่าที่แม่นมาก</p></div>
+      <div class="card hl"><h3>PWM + RC filter</h3><p class="muted small">ไม่มี DAC บนชิปก็ทำได้: ส่ง PWM แล้วผ่านตัวกรอง low-pass ได้แรงดันเฉลี่ย ∝ duty cycle — ใช้ได้กับทุกบอร์ด</p></div>
+      <div class="card"><h3>Sigma-Delta DAC</h3><p class="muted small">ส่งสตรีม 1 บิตความเร็วสูง แล้วกรองเป็นอนาล็อก นิยมในงานเสียงคุณภาพสูง</p></div>
+    </div>
+    <p style="margin-top:.8em" class="muted">เอาต์พุตของ DAC เป็น <b>ขั้นบันได</b> (ค่าคงที่ระหว่างตัวอย่าง) → ต้องมี <b>reconstruction filter</b> (low-pass) ทำให้เรียบ — ลองดูในสไลด์ถัดไป</p>
+  </div>
+</section>
+
+<!-- 12 ───────── DAC lab ───────── -->
+<section class="slide" id="s-daclab" data-title="DAC แล็บ"
+  data-note="ให้กดสวิตช์ทีละบิตแล้วดูแรงดัน จากนั้นลดจำนวนบิตของคลื่นไซน์และเปิด/ปิดตัวกรอง จะเห็นว่าตัวกรองทำให้ขั้นบันไดเรียบ">
+  <div class="wrap">
+    <p class="eyebrow">DAC · Lab 5</p>
+    <h2>ลองเป็น DAC: กดบิตแล้วดู <span class="grad">V<sub>out</sub></span></h2>
+    <div class="grid g2" style="align-items:start">
+      <div class="card">
+        <div class="sw" id="dacSw"></div>
+        <div class="row" style="margin:.2em 0 .5em"><button class="btn" data-dac="0">0</button><button class="btn" data-dac="64">64</button><button class="btn" data-dac="128">128</button><button class="btn" data-dac="255">255</button></div>
+        <div class="bar" aria-hidden="true"><i id="dacBar"></i></div>
+        <div class="sg" style="margin-top:.6em">
+          <div class="stat"><b id="dacCode">128</b><span>โค้ด D (8 บิต, V<sub>ref</sub> = 3.3 V)</span></div>
+          <div class="stat"><b id="dacV">1.650 V</b><span>V<sub>out</sub></span></div>
+        </div>
+        <span class="formula" id="dacF" style="font-size:.85em"></span>
+      </div>
+      <div>
+        <canvas id="cDac" class="cv" role="img" aria-label="คลื่นไซน์จาก DAC ขั้นบันได และหลังผ่านตัวกรอง"></canvas>
+        <div class="legend"><span><i style="background:var(--muted)"></i>ไซน์ในอุดมคติ</span><span><i style="background:var(--accent2)"></i>เอาต์พุต DAC (ขั้นบันได)</span><span><i style="background:var(--accent)"></i>หลังผ่าน low-pass filter</span></div>
+        <label class="ctl"><span>ความละเอียด DAC = <b id="nDacV">4</b> บิต</span><input type="range" id="nDac" min="2" max="8" value="4"></label>
+        <label class="ctl" style="display:flex;gap:.6em;align-items:center"><input type="checkbox" id="lpfDac" checked style="width:1.2em;height:1.2em;accent-color:var(--accent)"><span style="display:inline">ใส่ low-pass filter (reconstruction filter)</span></label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 13 ───────── Boards ───────── -->
+<section class="slide" id="s-board" data-title="บนบอร์ดจริง"
+  data-note="ตรวจให้ตรงกับบอร์ดที่อาจารย์แจก ถ้าเป็น ESP32 รุ่นดั้งเดิมมี DAC 2 ช่อง รุ่น S3 ไม่มี ให้ใช้ PWM+RC หรือ DAC ภายนอก เน้นว่า ADC2 ใช้ไม่ได้ตอนเปิด Wi-Fi ซึ่ง AIoT ต้องใช้แน่นอน">
+  <div class="wrap">
+    <p class="eyebrow">On real hardware</p>
+    <h2>บนบอร์ดจริง: <span class="grad">Arduino Uno vs ESP32</span></h2>
+    <div class="grid g2" style="align-items:start">
+      <div class="tw"><table>
+        <thead><tr><th></th><th>Arduino Uno</th><th>ESP32 (ดั้งเดิม)</th></tr></thead>
+        <tbody>
+          <tr><td><b>ADC</b></td><td>10 บิต (0–1023)</td><td>12 บิต (0–4095)</td></tr>
+          <tr><td><b>แรงดันอินพุต</b></td><td>0–5 V</td><td>0 ถึงประมาณ 3.3 V (ขึ้นกับ attenuation)</td></tr>
+          <tr><td><b>1 LSB</b></td><td>≈ 4.88 mV</td><td>≈ 0.806 mV (ในอุดมคติ)</td></tr>
+          <tr><td><b>DAC</b></td><td>ไม่มี (ใช้ PWM)</td><td>8 บิต 2 ช่อง: GPIO25, GPIO26</td></tr>
+          <tr><td><b>ข้อควรระวัง</b></td><td>—</td><td>ADC2 ใช้ไม่ได้เมื่อเปิด Wi-Fi · ผลไม่เป็นเส้นตรง · ต้อง calibrate</td></tr>
+        </tbody></table></div>
+      <div>
+<pre><span class="c">// ESP32 (Arduino core) — อ่าน ADC1 (ใช้ร่วม Wi-Fi ได้)</span>
+<span class="k">const int</span> PIN = <span class="n">34</span>;          <span class="c">// ADC1</span>
+
+<span class="k">void</span> setup() {
+  Serial.begin(<span class="n">115200</span>);
+  analogReadResolution(<span class="n">12</span>);       <span class="c">// 12 บิต</span>
+  analogSetAttenuation(ADC_11db); <span class="c">// ช่วงอินพุตกว้างสุด</span>
+}
+<span class="k">void</span> loop() {
+  <span class="k">int</span> raw = analogRead(PIN);        <span class="c">// 0–4095</span>
+  <span class="k">int</span> mV  = analogReadMilliVolts(PIN); <span class="c">// calibrate แล้ว</span>
+  Serial.printf(<span class="s">"%d  %d mV\n"</span>, raw, mV);
+  dacWrite(<span class="n">25</span>, <span class="n">128</span>);  <span class="c">// DAC ≈ 1.65 V</span>
+  delay(<span class="n">100</span>);
+}</pre>
+        <p class="muted small"><code>dacWrite()</code> ใช้ได้เฉพาะชิปที่มี DAC (ESP32 ดั้งเดิม) · ESP32-S3 ไม่มี DAC ในตัว → ใช้ PWM + RC หรือ DAC ภายนอก (ตรวจ datasheet ของบอร์ดที่ได้รับแจกก่อนใช้งาน)</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 ───────── Problems ───────── -->
+<section class="slide" id="s-problems" data-title="ปัญหาที่เจอจริง & วิธีแก้"
+  data-note="ส่วนนี้ช่วยโปรเจคเราโดยตรง: ถ้าค่าอ่านกระโดด ให้เฉลี่ย + ใส่ตัวเก็บประจุ ถ้าใช้ Wi-Fi ให้ใช้ขา ADC1 เท่านั้น">
+  <div class="wrap">
+    <p class="eyebrow">Real-world pitfalls</p>
+    <h2>ปัญหาที่ <span class="grad">เจอจริง</span> และวิธีแก้</h2>
+    <div class="grid g3">
+      <div class="card"><h3>ค่าอ่านกระโดด (Noise)</h3><p class="muted small">ADC บน ESP32 ไวต่อ noise → ต่อ <b>ตัวเก็บประจุ 0.1 µF</b> ที่ขาอินพุต และ <b>multisampling</b> (อ่านหลายครั้งแล้วเฉลี่ย)</p></div>
+      <div class="card"><h3>Aliasing</h3><p class="muted small">มีความถี่สูงปนมาเกิน fs/2 → ใส่ <b>RC low-pass filter</b> ก่อนเข้า ADC และเลือก fs ให้เหมาะกับสัญญาณ</p></div>
+      <div class="card"><h3>Vref ไม่ตรง / ไม่เป็นเส้นตรง</h3><p class="muted small">Vref ภายในของ ESP32 แต่ละตัวต่างกันได้ ~1000–1200 mV → ใช้ <b>analogReadMilliVolts()</b> หรือ <b>esp_adc_cal</b> เพื่อ calibrate</p></div>
+      <div class="card"><h3>ADC2 กับ Wi-Fi ชนกัน</h3><p class="muted small">ขา <b>ADC2</b> อ่านไม่ได้เมื่อ Wi-Fi ทำงาน → ใช้ขา <b>ADC1 (GPIO32–39)</b> สำหรับงาน AIoT</p></div>
+      <div class="card"><h3>ต้องการความแม่นยำสูง</h3><p class="muted small">ใช้ <b>ADC ภายนอก</b> เช่น ADS1115 (16 บิต, I²C) แทน ADC ในชิป</p></div>
+      <div class="card"><h3>อยากได้บิตเพิ่มฟรี ๆ</h3><p class="muted small"><b>Oversampling + เฉลี่ย</b>: สุ่มเพิ่ม 4 เท่า ได้ ≈ +1 บิต (SNR +6 dB) ถ้ามี noise พอเหมาะ</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 ───────── Applications ───────── -->
+<section class="slide" id="s-apps" data-title="เลือก fs และบิตให้เหมาะกับงาน"
+  data-note="สรุปการเลือกพารามิเตอร์: ดูความถี่สูงสุดของสัญญาณ แล้วเลือก fs เกิน 2 เท่า (ในทางปฏิบัติเผื่อไว้ 2.5–10 เท่า) แล้วเลือกบิตตามความละเอียดที่ต้องการ ตัวเลขในตารางเป็นค่าที่นิยมใช้">
+  <div class="wrap">
+    <p class="eyebrow">Choosing parameters</p>
+    <h2>เลือก <span class="grad">f<sub>s</sub> และจำนวนบิต</span> ให้เหมาะกับงาน</h2>
+    <div class="tw"><table>
+      <thead><tr><th>งาน</th><th>ความถี่สูงสุดของสัญญาณ</th><th>f<sub>s</sub> ที่นิยมใช้</th><th>ความละเอียด</th></tr></thead>
+      <tbody>
+        <tr><td><b>อุณหภูมิ / ความชื้นดิน</b></td><td>เปลี่ยนช้ามาก (&lt; 1 Hz)</td><td>1 Hz หรือช้ากว่า</td><td>10–12 บิต</td></tr>
+        <tr><td><b>ECG หัวใจ</b></td><td>~ 150 Hz</td><td>250–500 Hz</td><td>12–16 บิต</td></tr>
+        <tr><td><b>เสียงพูด / สั่งงานด้วยเสียง (TinyML)</b></td><td>~ 8 kHz</td><td>16 kHz</td><td>16 บิต</td></tr>
+        <tr><td><b>โทรศัพท์</b></td><td>~ 3.4 kHz</td><td>8 kHz</td><td>8 บิต (companded)</td></tr>
+        <tr class="hl"><td><b>เพลงซีดี</b></td><td>~ 20 kHz (หูมนุษย์)</td><td>44.1 kHz</td><td>16 บิต → SQNR ≈ 98 dB</td></tr>
+      </tbody></table></div>
+    <p class="muted small" style="margin-top:.6em">ตัวเลขเป็นค่าที่ใช้กันทั่วไป (typical) ไม่ใช่ข้อกำหนดตายตัว · ในทางปฏิบัติเลือก f<sub>s</sub> สูงกว่า 2·f<sub>max</sub> เพื่อเผื่อการ roll-off ของ anti-aliasing filter</p>
+  </div>
+</section>
+
+<!-- 16 ───────── Summary ───────── -->
+<section class="slide" id="s-summary" data-title="สรุป"
+  data-note="สรุป 5 ประโยค แล้วชวนเล่นเกมต่อทันที">
+  <div class="wrap">
+    <p class="eyebrow">Takeaways</p>
+    <h2>สรุป <span class="grad">5 ข้อ</span> ที่ต้องจำ</h2>
+    <div class="grid g2">
+      <div class="card"><h3><span class="num">1</span>ADC = สุ่ม → ปัด → เข้ารหัส</h3><p class="muted small">Sampling · Quantization · Encoding</p></div>
+      <div class="card"><h3><span class="num">2</span>f<sub>s</sub> &gt; 2·f<sub>max</sub></h3><p class="muted small">ไม่งั้นเกิด Aliasing กู้คืนไม่ได้ → ใช้ anti-aliasing filter</p></div>
+      <div class="card"><h3><span class="num">3</span>LSB = V<sub>ref</sub> / 2<sup>N</sup></h3><p class="muted small">บิตเยอะ = ละเอียด · error ไม่เกิน ±½ LSB · +1 บิต ≈ +6 dB</p></div>
+      <div class="card"><h3><span class="num">4</span>เลือกชนิดตามงาน</h3><p class="muted small">Flash เร็ว · SAR สมดุล (ใน MCU) · ΣΔ แม่นยำ · Pipeline เร็วและละเอียด</p></div>
+      <div class="card" style="grid-column:1/-1"><h3><span class="num">5</span>DAC: V<sub>out</sub> = V<sub>ref</sub>·D / 2<sup>N</sup></h3><p class="muted small">ไม่มี DAC ในชิป → PWM + low-pass filter · บน ESP32 ใช้ขา ADC1 เมื่อเปิด Wi-Fi และอย่าลืม calibrate</p></div>
+    </div>
+    <p style="margin-top:1em;font-weight:700">ถึงเวลาทดสอบความเข้าใจ → <span class="grad">ADC Quest</span> ➜</p>
+  </div>
+</section>
+
+<!-- 17 ───────── Quiz ───────── -->
+<section class="slide" id="s-quiz" data-title="มินิเกม ADC Quest"
+  data-note="ให้เพื่อนในห้องช่วยกันตอบ กด 1–4 บนคีย์บอร์ดเพื่อเลือกคำตอบ หลังตอบจะมีคำอธิบายให้ใช้ทบทวนเนื้อหาไปพร้อมกัน เกมสุ่มโจทย์ทุกรอบ เล่นซ้ำได้">
+  <div class="wrap"><div id="quiz" aria-live="polite"></div></div>
+</section>
+
+<!-- 18 ───────── Refs ───────── -->
+<section class="slide" id="s-refs" data-title="ขอบคุณ & อ้างอิง"
+  data-note="ขอบคุณ เปิดให้ถามคำถาม แหล่งอ้างอิงอยู่ในสไลด์นี้">
+  <div class="wrap">
+    <p class="eyebrow">Thank you</p>
+    <h1 style="font-size:clamp(2rem,4.6vw,3.4rem)">ขอบคุณครับ/ค่ะ <span class="grad">ถามได้เลย!</span></h1>
+    <h3 style="margin-top:1em">แหล่งอ้างอิง</h3>
+    <ul class="clean small" style="font-size:.78em">
+      <li>Analog Devices — <a target="_blank" rel="noopener noreferrer" href="https://www.analog.com/en/resources/analog-dialogue/articles/analog-to-digital-converter-architectures-and-choices.html">Analog-to-Digital Converter Architectures and Choices for System Design</a></li>
+      <li>Analog Devices — <a target="_blank" rel="noopener noreferrer" href="https://www.analog.com/en/resources/analog-dialogue/articles/the-right-adc-architecture.html">Which ADC Architecture Is Right for Your Application?</a></li>
+      <li>Espressif ESP-IDF — <a target="_blank" rel="noopener noreferrer" href="https://docs.espressif.com/projects/esp-idf/en/v4.3.3/esp32/api-reference/peripherals/adc.html">Analog to Digital Converter (ESP32, v4.3.3)</a> · <a target="_blank" rel="noopener noreferrer" href="https://docs.espressif.com/projects/esp-idf/en/v5.0/esp32/api-reference/peripherals/dac.html">Digital To Analog Converter (v5.0)</a></li>
+      <li>TU Berlin — <a target="_blank" rel="noopener noreferrer" href="https://platform.commit.tu-berlin.de/en/book/telecom/chapter/ch04/section/s03">Sampling Theorem and Discrete-Time Signals</a></li>
+      <li>MIT 6.555 — <a target="_blank" rel="noopener noreferrer" href="https://web.mit.edu/~gari/teaching/6.555/lectures/ch_ADC.pdf">Analog-to-Digital Conversion (lecture notes)</a></li>
+      <li>University of Oslo FYS3240 — <a target="_blank" rel="noopener noreferrer" href="https://uio.no/studier/emner/matnat/fys/FYS3240/v19/lecturenotes/l5---signal-sampling.pdf">Signal sampling (lecture notes)</a></li>
+    </ul>
+    <p class="muted small">หมายเหตุ: ตัวเลขของ ESP32 อ้างอิงเอกสาร ESP-IDF รุ่นที่ระบุ — เวอร์ชันใหม่อาจเปลี่ยน API/ช่วงแรงดัน ควรตรวจเอกสารของบอร์ดจริงอีกครั้ง</p>
+  </div>
+</section>
+
+</main>
+
+<div id="notes" role="note"></div>
+<nav id="nav" aria-label="ควบคุมสไลด์">
+  <button id="prev" aria-label="สไลด์ก่อนหน้า">◀</button>
+  <button id="next" aria-label="สไลด์ถัดไป">▶</button>
+  <span id="count">1 / 18</span>
+  <span class="t" id="ttl"></span>
+  <button id="bNotes" aria-label="โน้ตผู้พูด (N)" title="โน้ตผู้พูด (N)">📝</button>
+  <button id="bTheme" aria-label="สลับโหมดสว่าง/มืด (T)" title="สลับธีม (T)">◐</button>
+  <button id="bFs" aria-label="เต็มจอ (F)" title="เต็มจอ (F)">⛶</button>
+</nav>
+<noscript><p style="position:fixed;top:40%;width:100%;text-align:center">ต้องเปิดใช้งาน JavaScript เพื่อดูสไลด์นี้</p></noscript>
+
+<script>
+(() => {
+'use strict';
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const cv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const TAU = Math.PI * 2;
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+};
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function fit(c){
+  const r = c.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+  const w = Math.max(1, Math.round(r.width)), h = Math.max(1, Math.round(r.height));
+  if (c.width !== Math.round(w*d) || c.height !== Math.round(h*d)){ c.width = Math.round(w*d); c.height = Math.round(h*d); }
+  const ctx = c.getContext('2d'); ctx.setTransform(d,0,0,d,0,0);
+  return { ctx, w, h };
+}
+const bin = (n, bits) => n.toString(2).padStart(bits, '0');
+const fmtV = v => { const a = Math.abs(v); return a >= 1 ? v.toFixed(3)+' V' : a >= 1e-4 ? (v*1e3).toFixed(a>=0.1?1:a>=0.01?2:3)+' mV' : (v*1e6).toFixed(1)+' µV'; };
+function frame(ctx, w, h, pad, ylines){
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle = cv('--line'); ctx.lineWidth = 1; ctx.fillStyle = cv('--muted');
+  ctx.font = '11px ' + cv('--mono');
+  (ylines||[0,.25,.5,.75,1]).forEach(v => {
+    const y = h - pad.b - v*(h-pad.t-pad.b);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w-pad.r, y); ctx.stroke();
+  });
+}
+
+/* ───────────── Title background ───────────── */
+const bg = $('#bgwave'); let raf = 0;
+function titleFrame(t){
+  const { ctx, w, h } = fit(bg); ctx.clearRect(0,0,w,h);
+  const a = cv('--accent'), b = cv('--accent2');
+  const f = x => h*0.86 + Math.sin(x/w*TAU*2.2 + t/1100)*h*0.07 + Math.sin(x/w*TAU*5.5 + t/700)*h*0.02;
+  ctx.globalAlpha = .45; ctx.strokeStyle = a; ctx.lineWidth = 2.5; ctx.beginPath();
+  for (let x=0;x<=w;x+=3){ x?ctx.lineTo(x,f(x)):ctx.moveTo(x,f(x)); } ctx.stroke();
+  ctx.strokeStyle = b; ctx.fillStyle = b; ctx.lineWidth = 1.5;
+  for (let x=20;x<w;x+=46){ const y=f(x); ctx.beginPath(); ctx.moveTo(x,h); ctx.lineTo(x,y); ctx.stroke(); ctx.beginPath(); ctx.arc(x,y,4,0,TAU); ctx.fill(); }
+  ctx.globalAlpha = 1;
+  if (!reduceMotion) raf = requestAnimationFrame(titleFrame);
+}
+function titleStart(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(titleFrame); }
+function titleStop(){ cancelAnimationFrame(raf); }
+
+/* ───────────── Why: analog vs digital ───────────── */
+function drawWhy(){
+  const { ctx, w, h } = fit($('#cWhy'));
+  const pad = { l:10, r:10, t:14, b:14 };
+  frame(ctx, w, h, pad);
+  const X = t => pad.l + t*(w-pad.l-pad.r), Y = v => h-pad.b - v*(h-pad.t-pad.b);
+  const f = t => clamp(0.5 + 0.3*Math.sin(TAU*1.5*t) + 0.12*Math.sin(TAU*4.5*t+1), 0, 1);
+  const S = 18, L = 8;
+  ctx.strokeStyle = cv('--accent2'); ctx.lineWidth = 3; ctx.beginPath();
+  for (let i=0;i<S;i++){
+    const q = Math.round(f((i+.5)/S)*(L-1))/(L-1);
+    const x0 = X(i/S), x1 = X((i+1)/S);
+    i ? ctx.lineTo(x0, Y(q)) : ctx.moveTo(x0, Y(q)); ctx.lineTo(x1, Y(q));
+  }
+  ctx.stroke();
+  ctx.strokeStyle = cv('--accent'); ctx.lineWidth = 3; ctx.beginPath();
+  for (let i=0;i<=300;i++){ const t=i/300; i?ctx.lineTo(X(t),Y(f(t))):ctx.moveTo(X(t),Y(f(t))); } ctx.stroke();
+}
+
+/* ───────────── Steps simulator ───────────── */
+function drawSteps(){
+  const c = $('#cSteps'), { ctx, w, h } = fit(c);
+  const fs = +$('#fsSteps').value, N = +$('#nSteps').value, L = 2**N;
+  $('#fsStepsV').textContent = fs; $('#nStepsV').textContent = N;
+  const pad = { l:12, r:12, t:14, b:14 };
+  frame(ctx, w, h, pad, L <= 32 ? Array.from({length:L}, (_,k)=>k/(L-1)) : null);
+  const X = t => pad.l + t*(w-pad.l-pad.r), Y = v => h-pad.b - v*(h-pad.t-pad.b);
+  const sig = t => 0.5 + 0.42*Math.sin(TAU*2*t);
+  ctx.strokeStyle = cv('--muted'); ctx.lineWidth = 1.5; ctx.beginPath();
+  for (let i=0;i<=400;i++){ const t=i/400; i?ctx.lineTo(X(t),Y(sig(t))):ctx.moveTo(X(t),Y(sig(t))); } ctx.stroke();
+  const a = cv('--accent'), b = cv('--accent2');
+  const codes = [];
+  for (let n=0;n<fs;n++){
+    const t = n/fs, v = sig(t), code = Math.round(v*(L-1)), vq = code/(L-1);
+    codes.push(code);
+    ctx.strokeStyle = b; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(X(t), Y(0)); ctx.lineTo(X(t), Y(vq)); ctx.stroke();
+    ctx.fillStyle = b; ctx.beginPath(); ctx.arc(X(t), Y(vq), fs>40?3:4.5, 0, TAU); ctx.fill();
+    ctx.strokeStyle = a; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(X(t), Y(v), fs>40?2.5:3.5, 0, TAU); ctx.stroke();
+  }
+  $('#infoSteps').textContent = `${fs} ตัวอย่าง/วินาที · ${L.toLocaleString()} ระดับ · ${N} บิต/ตัวอย่าง → ข้อมูล ${fs*N} บิตต่อวินาที`;
+  $('#codesSteps').innerHTML = codes.slice(0,8).map((cd,i)=>`<span class="chipbit">n=${i} · ${bin(cd,N)} (${cd})</span>`).join('');
+}
+
+/* ───────────── Aliasing ───────────── */
+function drawAlias(){
+  const { ctx, w, h } = fit($('#cAlias'));
+  const f = +$('#fA').value, fs = +$('#fsA').value;
+  $('#fAV').textContent = f; $('#fsAV').textContent = fs;
+  const pad = { l:10, r:10, t:14, b:14 };
+  frame(ctx, w, h, pad, [0,.5,1]);
+  const X = t => pad.l + t*(w-pad.l-pad.r), Y = v => h/2 - v*(h/2-pad.t-4);
+  const k = Math.round(f/fs), fa = f - k*fs, aliased = fs <= 2*f;
+  if (aliased){
+    ctx.setLineDash([7,5]); ctx.strokeStyle = cv('--bad'); ctx.lineWidth = 2.5; ctx.beginPath();
+    for (let i=0;i<=1000;i++){ const t=i/1000, y=Y(Math.sin(TAU*fa*t)); i?ctx.lineTo(X(t),y):ctx.moveTo(X(t),y); } ctx.stroke(); ctx.setLineDash([]);
+  }
+  ctx.strokeStyle = cv('--accent'); ctx.lineWidth = 2; ctx.beginPath();
+  for (let i=0;i<=2000;i++){ const t=i/2000, y=Y(Math.sin(TAU*f*t)); i?ctx.lineTo(X(t),y):ctx.moveTo(X(t),y); } ctx.stroke();
+  ctx.fillStyle = cv('--accent2');
+  for (let n=0;n<=fs;n++){ const t=n/fs; ctx.beginPath(); ctx.arc(X(t), Y(Math.sin(TAU*f*t)), 4.5, 0, TAU); ctx.fill(); }
+  const st = $('#statAlias');
+  if (fs > 2*f){ st.className='status ok'; st.textContent = `✔ fs = ${fs} Hz > 2f = ${2*f} Hz — สุ่มพอ กู้สัญญาณกลับมาได้ครบ`; }
+  else if (fs === 2*f){ st.className='status warn'; st.textContent = `⚠ fs = 2f พอดี — ยังไม่พอ ต้องมากกว่า 2f (ตัวอย่างอาจตกที่ศูนย์ทั้งหมด)`; }
+  else { st.className='status bad'; st.textContent = `✖ Aliasing! สัญญาณ ${f} Hz ถูกมองเป็น ${Math.abs(fa)} Hz (fs = ${fs} Hz < 2f = ${2*f} Hz)`; }
+}
+
+/* ───────────── Quantization ───────────── */
+function drawQuant(){
+  const { ctx, w, h } = fit($('#cQuant'));
+  const N = +$('#nQ').value, M = Math.min(N, 6), L = 2**M, Lfull = 2**N, VREF = 3.3;
+  $('#nQV').textContent = N;
+  const lsb = VREF / Lfull;
+  $('#qLevels').textContent = Lfull.toLocaleString();
+  $('#qLsb').textContent = fmtV(lsb);
+  $('#qErr').textContent = '±' + fmtV(lsb/2);
+  $('#qSnr').textContent = (6.02*N + 1.76).toFixed(1) + ' dB';
+  $('#noteQuant').textContent = N > 6 ? `ภาพแสดง 6 บิต (64 ระดับ) — ที่ ${N} บิตขั้นบันไดเล็กจนมองไม่เห็น นั่นคือเป้าหมายของการเพิ่มบิต` : 'ด้านบน: ค่าที่ ADC ให้ออกมา (ส้ม) เทียบกับค่าจริง (เส้นประ) · ด้านล่าง: error ของแต่ละช่วง';
+  ctx.clearRect(0,0,w,h);
+  const padL = 14, padR = 14, topH = h*0.6, gap = 16, y2 = topH + gap, h2 = h - y2 - 10;
+  const X = x => padL + x*(w-padL-padR);
+  const Y1 = v => topH - 6 - v*(topH-18);
+  ctx.strokeStyle = cv('--line'); ctx.lineWidth = 1;
+  ctx.strokeRect(padL, 10, w-padL-padR, topH-16);
+  // ideal
+  ctx.setLineDash([5,5]); ctx.strokeStyle = cv('--muted'); ctx.beginPath(); ctx.moveTo(X(0),Y1(0)); ctx.lineTo(X(1),Y1(1)); ctx.stroke(); ctx.setLineDash([]);
+  // staircase
+  const code = x => clamp(Math.round(x*L), 0, L-1);
+  ctx.strokeStyle = cv('--accent2'); ctx.lineWidth = 2.5; ctx.beginPath();
+  for (let i=0;i<=600;i++){ const x=i/600, y=Y1(code(x)/L); i?ctx.lineTo(X(x),y):ctx.moveTo(X(x),y); } ctx.stroke();
+  // error panel
+  const mid = y2 + h2/2, sc = (h2/2-4)/(1/L);
+  ctx.strokeStyle = cv('--line'); ctx.beginPath(); ctx.moveTo(padL,mid); ctx.lineTo(w-padR,mid); ctx.stroke();
+  ctx.setLineDash([4,4]); ctx.strokeStyle = cv('--good');
+  [0.5,-0.5].forEach(s=>{ const y = mid - s*(1/L)*sc; ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke(); }); ctx.setLineDash([]);
+  ctx.strokeStyle = cv('--bad'); ctx.lineWidth = 2; ctx.beginPath();
+  for (let i=0;i<=600;i++){ const x=i/600, e=x-code(x)/L, y=mid - clamp(e,-1/L,1/L)*sc; i?ctx.lineTo(X(x),y):ctx.moveTo(X(x),y); } ctx.stroke();
+  ctx.fillStyle = cv('--muted'); ctx.font = '12px Sarabun, "Leelawadee UI", Tahoma, sans-serif';
+  ctx.fillText('error (เส้นประเขียว = ±½ LSB)', padL+4, y2+11);
+}
+
+/* ───────────── Calculator ───────────── */
+const calc = { vref: 3.3, bits: 12 };
+function calcUpdate(from){
+  const L = 2**calc.bits, lsb = calc.vref / L;
+  const vinEl = $('#calcVin'), codeEl = $('#calcCode');
+  vinEl.max = calc.vref; $('#calcMax').textContent = L-1; codeEl.max = L-1;
+  let code;
+  if (from === 'code'){ code = clamp(Math.round(+codeEl.value || 0), 0, L-1); vinEl.value = Math.min(calc.vref, code*lsb); }
+  else { code = clamp(Math.round(+vinEl.value / lsb), 0, L-1); codeEl.value = code; }
+  const vin = +vinEl.value, vq = code*lsb;
+  $('#calcVinV').textContent = vin.toFixed(3);
+  $('#cLsb').textContent = fmtV(lsb);
+  $('#cCode').textContent = code;
+  const b = bin(code, calc.bits).replace(/(.{4})(?=.)/g,'$1 ');
+  $('#cBin').textContent = b; $('#cHex').textContent = '0x' + code.toString(16).toUpperCase();
+  $('#cFormula').textContent = `code = ${vin.toFixed(3)} / ${lsb.toPrecision(4)} ≈ ${code}`;
+  $('#cErr').textContent = `แรงดันที่ ADC "เข้าใจ" = ${code} × ${fmtV(lsb)} = ${vq.toFixed(4)} V · คลาดเคลื่อน ${((vin-vq)*1000).toFixed(3)} mV (ไม่เกิน ±½ LSB = ±${(lsb*500).toFixed(3)} mV)`;
+  $$('[data-vref]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.vref === calc.vref));
+  $$('[data-bits]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.bits === calc.bits));
+}
+
+/* ───────────── SAR ───────────── */
+const sar = { rows: [], shown: 0, timer: 0, code: 0 };
+function sarCompute(vin){
+  const N=8, L=256, lsb=3.3/L; let code=0; const rows=[];
+  for (let b=N-1;b>=0;b--){ const trial = code | (1<<b), vdac = trial*lsb, keep = vin + lsb/2 >= vdac; if (keep) code = trial; rows.push({ b, trial, vdac, keep, code }); }
+  return { rows, code, lsb };
+}
+function sarRender(){
+  const vin = +$('#sarVin').value; $('#sarVinV').textContent = vin.toFixed(2);
+  const r = sarCompute(vin); sar.rows = r.rows; sar.code = r.code;
+  const tb = $('#sarTable tbody');
+  tb.innerHTML = r.rows.map((x,i) => {
+    const bits = bin(x.trial,8).split('').map((ch,k)=> k===7-x.b ? `<span class="bt">${ch}</span>` : `<span class="${ch==='1'?'b1':'b0'}">${ch}</span>`).join('');
+    return `<tr class="${i<sar.shown?(i===sar.shown-1?'now':''):'pending'}"><td>${i+1}</td><td>${bits}</td><td>${x.vdac.toFixed(3)} V</td><td>${i<sar.shown ? (x.keep ? 'V<sub>in</sub> ≥ V<sub>DAC</sub> → <span class="b1">เก็บ 1</span>' : 'V<sub>in</sub> &lt; V<sub>DAC</sub> → <span class="b0">ทิ้ง 0</span>') : '…'}</td></tr>`;
+  }).join('');
+  const res = $('#sarResult');
+  if (sar.shown >= 8){ res.className='status ok'; res.innerHTML = `ได้ผล: <b class="mono">${bin(r.code,8)}</b> = ${r.code} → ${(r.code*r.lsb).toFixed(3)} V (V<sub>in</sub> = ${vin.toFixed(2)} V)`; }
+  else if (sar.shown > 0){ res.className='status warn'; res.textContent = `รอบที่ ${sar.shown} / 8 …`; }
+  else { res.className='status warn'; res.textContent = 'กด "เริ่มทำงาน" เพื่อดู'; }
+  sarDraw(vin);
+}
+function sarDraw(vin){
+  const { ctx, w, h } = fit($('#cSar'));
+  const pad = { l:30, r:12, t:12, b:20 };
+  ctx.clearRect(0,0,w,h);
+  const X = i => pad.l + (i/7)*(w-pad.l-pad.r), Y = v => h-pad.b - v/3.3*(h-pad.t-pad.b);
+  ctx.strokeStyle = cv('--line'); ctx.fillStyle = cv('--muted'); ctx.font = '11px ' + cv('--mono');
+  [0,1.65,3.3].forEach(v=>{ ctx.beginPath(); ctx.moveTo(pad.l,Y(v)); ctx.lineTo(w-pad.r,Y(v)); ctx.stroke(); ctx.fillText(String(v), 2, Y(v)+4); });
+  ctx.strokeStyle = cv('--accent'); ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(pad.l,Y(vin)); ctx.lineTo(w-pad.r,Y(vin)); ctx.stroke();
+  const rows = sar.rows.slice(0, sar.shown);
+  ctx.strokeStyle = cv('--accent2'); ctx.fillStyle = cv('--accent2'); ctx.lineWidth = 1.5;
+  ctx.beginPath(); rows.forEach((r,i)=> i?ctx.lineTo(X(i),Y(r.vdac)):ctx.moveTo(X(i),Y(r.vdac))); ctx.stroke();
+  rows.forEach((r,i)=>{ ctx.beginPath(); ctx.arc(X(i),Y(r.vdac),5,0,TAU); ctx.fill(); });
+}
+function sarStop(){ clearInterval(sar.timer); sar.timer = 0; }
+function sarReset(){ sarStop(); sar.shown = 0; sarRender(); $('#sarGo').disabled = false; }
+function sarGo(){
+  sarStop(); sar.shown = 0; sarRender(); $('#sarGo').disabled = true;
+  const step = () => { sar.shown++; sarRender(); if (sar.shown >= 8){ sarStop(); $('#sarGo').disabled = false; } };
+  if (reduceMotion){ sar.shown = 7; step(); return; }
+  sar.timer = setInterval(step, 750); setTimeout(step, 250);
+}
+
+/* ───────────── DAC lab ───────────── */
+let dacCode = 128;
+function dacBuild(){
+  const sw = $('#dacSw'); sw.innerHTML = '';
+  for (let b=7;b>=0;b--){
+    const btn = document.createElement('button'); btn.type = 'button'; btn.dataset.b = b;
+    btn.innerHTML = `<span class="bv">0</span><small>${1<<b}</small>`; btn.setAttribute('aria-label', `บิต D${b} น้ำหนัก ${1<<b}`);
+    btn.addEventListener('click', () => { dacCode ^= (1<<b); dacDraw(); });
+    sw.appendChild(btn);
+  }
+}
+function dacDraw(){
+  $$('#dacSw button').forEach(btn => { const on = !!(dacCode & (1<<btn.dataset.b)); btn.setAttribute('aria-pressed', on); btn.firstChild.textContent = on ? 1 : 0; });
+  const v = 3.3*dacCode/256;
+  $('#dacCode').textContent = dacCode; $('#dacV').textContent = v.toFixed(3) + ' V';
+  $('#dacBar').style.width = (dacCode/255*100) + '%';
+  $('#dacF').textContent = `V_out = 3.3 × ${dacCode} / 256 = ${v.toFixed(3)} V`;
+  const N = +$('#nDac').value; $('#nDacV').textContent = N;
+  const { ctx, w, h } = fit($('#cDac'));
+  const pad = { l:10, r:10, t:14, b:14 }; frame(ctx, w, h, pad, [0,.5,1]);
+  const X = t => pad.l + t*(w-pad.l-pad.r), Y = v => h-pad.b - v*(h-pad.t-pad.b);
+  const per = 16, total = per*2, L = 2**N;
+  const smp = Array.from({length: total}, (_,i) => Math.round((0.5+0.45*Math.sin(TAU*i/per))*(L-1))/(L-1));
+  ctx.setLineDash([5,5]); ctx.strokeStyle = cv('--muted'); ctx.lineWidth = 1.5; ctx.beginPath();
+  for (let i=0;i<=400;i++){ const t=i/400; i?ctx.lineTo(X(t),Y(0.5+0.45*Math.sin(TAU*2*t))):ctx.moveTo(X(t),Y(0.5+0.45*Math.sin(TAU*2*t))); } ctx.stroke(); ctx.setLineDash([]);
+  const P = 640, ys = Array.from({length:P}, (_,j) => smp[Math.min(total-1, Math.floor(j/P*total))]);
+  ctx.strokeStyle = cv('--accent2'); ctx.lineWidth = 2.5; ctx.beginPath(); ys.forEach((y,j)=> j?ctx.lineTo(X(j/(P-1)),Y(y)):ctx.moveTo(X(0),Y(y))); ctx.stroke();
+  if ($('#lpfDac').checked){
+    let f = ys[0]; const al = 0.1; ctx.strokeStyle = cv('--accent'); ctx.lineWidth = 3.5; ctx.beginPath();
+    ys.forEach((y,j)=>{ f += al*(y-f); j?ctx.lineTo(X(j/(P-1)),Y(f)):ctx.moveTo(X(0),Y(f)); }); ctx.stroke();
+  }
+}
+
+/* ───────────── Quiz ───────────── */
+const Q = [
+ // ระดับ 1 (ง่าย)
+ {d:1,q:'เซ็นเซอร์อุณหภูมิแบบอนาล็อกให้แรงดันต่อเนื่องออกมา ไมโครคอนโทรลเลอร์จะอ่านค่าได้ต้องผ่านวงจรอะไรก่อน?',c:['ADC','DAC','Flip-flop','Voltage regulator'],e:'ADC (Analog-to-Digital Converter) แปลงแรงดันต่อเนื่องเป็นตัวเลขที่ MCU ประมวลผลได้'},
+ {d:1,q:'ลำดับขั้นตอนของ ADC ข้อใดถูกต้อง?',c:['Sampling → Quantization → Encoding','Encoding → Sampling → Quantization','Quantization → Encoding → Sampling','Sampling → Encoding → Quantization'],e:'สุ่มค่าตามเวลา (Sampling) → ปัดเป็นระดับ (Quantization) → แปลงเป็นเลขฐานสอง (Encoding)'},
+ {d:1,q:'ADC ขนาด 10 บิต แบ่งแรงดันอินพุตได้กี่ระดับ?',c:['1,024','10','100','512'],e:'จำนวนระดับ = 2^N = 2^10 = 1,024 ระดับ (ค่า 0–1023 แบบ Arduino Uno)'},
+ {d:1,q:'ADC แบบใดแปลงเร็วที่สุด แต่ความละเอียดมักไม่สูงและกินไฟมาก?',c:['Flash','Sigma-Delta','SAR','Dual-slope'],e:'Flash ใช้ตัวเปรียบเทียบ 2^N−1 ตัวทำงานพร้อมกัน จึงตัดสินได้ในรอบเดียว'},
+ {d:1,q:'ถ้าบอร์ดไม่มี DAC ในตัว จะสร้างแรงดันอนาล็อกได้โดยวิธีใดที่นิยมที่สุด?',c:['PWM แล้วผ่าน low-pass filter (RC)','ต่อ LED ตรง ๆ','เพิ่มความถี่ clock','ใช้ตัวต้านทานตัวเดียว'],e:'PWM มีแรงดันเฉลี่ยเป็นสัดส่วนกับ duty cycle เมื่อผ่านตัวกรอง RC จะได้แรงดันเรียบ ๆ'},
+ {d:1,q:'เพลงในแผ่นซีดีใช้ sampling rate เท่าไร (เพราะหูมนุษย์ได้ยินสูงสุดราว 20 kHz)?',c:['44.1 kHz','8 kHz','16 kHz','1 MHz'],e:'44.1 kHz > 2 × 20 kHz ตามทฤษฎีบท Nyquist พร้อมเผื่อให้ตัวกรอง anti-aliasing'},
+ // ระดับ 2 (ปานกลาง)
+ {d:2,q:'ADC 12 บิต, Vref = 3.3 V ค่า 1 LSB ประมาณเท่าไร?',c:['0.806 mV','3.22 mV','1.61 mV','0.403 mV'],e:'LSB = 3.3 / 4096 ≈ 0.806 mV'},
+ {d:2,q:'สัญญาณความถี่ 1 kHz ตามทฤษฎีบท Nyquist ต้องสุ่มด้วยอัตราอย่างน้อยเท่าไร?',c:['มากกว่า 2 kHz','500 Hz','1 kHz พอดี','มากกว่า 100 Hz'],e:'ต้อง fs > 2·fmax = 2 kHz (มากกว่า ไม่ใช่เท่ากับ) ในทางปฏิบัติเผื่อเพิ่ม'},
+ {d:2,q:'Aliasing คืออะไร?',c:['ความถี่สูงถูก "พับ" มาเป็นความถี่ต่ำที่ไม่มีจริง เมื่อสุ่มช้าเกินไป','สัญญาณขาดหายไปเพราะแรงดันต่ำ','การปัดเศษตอน quantization','การที่ ADC ร้อนจัด'],e:'เมื่อ fs ≤ 2f สัญญาณจะถูกมองเป็นความถี่ต่ำปลอม แยกจากของจริงไม่ได้อีก'},
+ {d:2,q:'วิธีป้องกัน Aliasing ที่ถูกต้องคือข้อใด?',c:['ใส่ low-pass filter ก่อนเข้า ADC (anti-aliasing filter)','ใส่ low-pass filter หลังออกจาก ADC','เพิ่มจำนวนบิตของ ADC','ลดแรงดัน Vref'],e:'ต้องตัดความถี่เกิน fs/2 ทิ้ง "ก่อน" สุ่ม เพราะหลังสุ่มแล้วแยก alias ออกไม่ได้'},
+ {d:2,q:'Arduino Uno (5 V, 10 บิต) อ่าน analogRead ได้ 512 ประมาณกี่โวลต์?',c:['2.5 V','5 V','1.0 V','0.5 V'],e:'V ≈ 512 × 5 / 1024 ≈ 2.5 V (ครึ่งหนึ่งของ full-scale)'},
+ {d:2,q:'ESP32 อ่านค่า raw 12 บิตได้ 2048 (สมมติ full-scale 3.3 V แบบอุดมคติ) แรงดันประมาณเท่าไร?',c:['1.65 V','3.3 V','2.048 V','0.8 V'],e:'2048 / 4096 = ครึ่งหนึ่ง → 1.65 V (ของจริงไม่เป็นเส้นตรงเป๊ะ จึงควร calibrate)'},
+ {d:2,q:'บน ESP32 ขา ADC กลุ่มใด "อ่านไม่ได้" เมื่อ Wi-Fi ทำงาน?',c:['ADC2','ADC1','ทุกขา','ขา GPIO32–39'],e:'ADC2 ใช้ร่วมกับ Wi-Fi driver และ Wi-Fi มีลำดับความสำคัญสูงกว่า → งาน AIoT ที่ใช้ Wi-Fi ให้ใช้ขา ADC1'},
+ {d:2,q:'SAR ADC ขนาด N บิต ใช้กี่รอบการเปรียบเทียบต่อ 1 การแปลง?',c:['N รอบ','1 รอบ','2^N รอบ','2N รอบ'],e:'SAR ทำ binary search ทีละบิต จากบิตสูงสุดลงมา จึงใช้ N รอบ (8 บิต = 8 รอบ)'},
+ {d:2,q:'ADC ชนิดใดแลกความเร็วกับความละเอียดสูงมาก (16–24+ บิต) โดยใช้ oversampling และ digital filter?',c:['Sigma-Delta','Flash','Pipeline','SAR'],e:'Sigma-Delta สุ่มเร็วมากด้วย 1 บิต แล้วกรองเป็นค่าละเอียด เหมาะกับเครื่องชั่ง/เซ็นเซอร์แม่นยำ'},
+ {d:2,q:'DAC 8 บิต Vref = 3.3 V ใส่โค้ด 128 จะได้แรงดันประมาณเท่าไร?',c:['1.65 V','3.3 V','0.128 V','0.825 V'],e:'Vout = 3.3 × 128 / 256 = 1.65 V'},
+ {d:2,q:'ESP32 รุ่นดั้งเดิมมี DAC กี่ช่อง กี่บิต และอยู่ที่ขาไหน?',c:['2 ช่อง, 8 บิต, GPIO25 และ GPIO26','1 ช่อง, 12 บิต, GPIO34','4 ช่อง, 10 บิต, GPIO0–3','ไม่มี DAC เลย'],e:'ESP32 รุ่นดั้งเดิมมี DAC 8 บิต 2 ช่อง ที่ GPIO25 และ GPIO26 (บางรุ่น เช่น ESP32-S3 ไม่มี)'},
+ {d:2,q:'เพิ่มความละเอียดของ ADC ขึ้น 1 บิต (ในอุดมคติ) SQNR จะดีขึ้นประมาณเท่าไร?',c:['≈ 6 dB','≈ 1 dB','≈ 20 dB','≈ 3 dB'],e:'SQNR ≈ 6.02N + 1.76 dB → ทุก 1 บิตเพิ่มประมาณ 6 dB'},
+ {d:2,q:'ความคลาดเคลื่อนจากการ quantization ของ ADC ในอุดมคติมีค่าสูงสุดประมาณเท่าไร?',c:['±½ LSB','±2 LSB','±10 LSB','0 (ไม่มี error)'],e:'ค่าจริงถูกปัดไปยังระดับที่ใกล้ที่สุด จึงคลาดเคลื่อนไม่เกินครึ่งขั้น (±½ LSB)'},
+ {d:2,q:'ตามเอกสาร Espressif วิธีลด noise ของ ADC บน ESP32 ที่แนะนำคือข้อใด?',c:['ใส่ตัวเก็บประจุ 0.1 µF ที่ขาอินพุต และทำ multisampling','ต่อสายอินพุตให้ยาวขึ้น','ลดความถี่ CPU เหลือ 1 MHz','เพิ่ม Vref เป็น 12 V'],e:'ADC ของ ESP32 ไวต่อ noise → ตัวเก็บประจุ 0.1 µF + เฉลี่ยหลายตัวอย่าง (multisampling) ช่วยได้มาก'},
+ {d:2,q:'ภายใน SAR ADC ใช้วงจรใดสร้างแรงดันทดลองเพื่อเทียบกับ Vin ในแต่ละรอบ?',c:['DAC ภายใน (ร่วมกับ comparator)','ตัวต้านทานแปรผัน','คริสตัล','Op-amp แบบ buffer'],e:'SAR ใช้ DAC ภายในสร้างแรงดันทดลอง แล้วใช้ comparator เทียบกับ Vin — ADC กับ DAC เกี่ยวข้องกันลึกกว่าที่คิด!'},
+ // ระดับ 3 (ยาก)
+ {d:3,q:'สุ่มสัญญาณ 90 Hz ด้วย fs = 100 Hz ผลลัพธ์ที่ MCU เห็นจะเป็นความถี่ใด?',c:['10 Hz','90 Hz','190 Hz','45 Hz'],e:'f_alias = |f − k·fs| = |90 − 1×100| = 10 Hz (สัญญาณ 90 Hz แต่งตัวเป็น 10 Hz)'},
+ {d:3,q:'ADC 16 บิตในอุดมคติ มี SQNR ประมาณเท่าไร? (สูตร 6.02N + 1.76)',c:['≈ 98 dB','≈ 48 dB','≈ 72 dB','≈ 144 dB'],e:'6.02 × 16 + 1.76 ≈ 98.1 dB (ซีดีจริงได้ราว 95 dB เพราะมี noise)'},
+ {d:3,q:'ต้องการเพิ่มความละเอียดอีก 1 บิตด้วย oversampling + เฉลี่ย ต้องสุ่มเพิ่มกี่เท่า?',c:['4 เท่า','2 เท่า','8 เท่า','1.5 เท่า'],e:'ทุกการเพิ่ม OSR 2 เท่าได้ SNR +3 dB → 4 เท่าได้ +6 dB ≈ 1 บิต (ต้องมี noise พอเหมาะกระจายตัว)'}
+];
+const TIME = [0, 15, 20, 25];
+const RANKS = [
+  { min:10, t:'👑 ADC Grandmaster', s:'เก่งทั้งสุ่ม ทั้งปัด ทั้งเข้ารหัส!' },
+  { min:8,  t:'⚡ Nyquist Master', s:'ความรู้แน่นมาก เกือบเต็ม!' },
+  { min:5,  t:'📡 นักสุ่มสัญญาณ', s:'ผ่านเกณฑ์ ทบทวนอีกนิดจะเทพ' },
+  { min:0,  t:'🌱 มือใหม่สาย Analog', s:'กลับไปดูสไลด์อีกรอบแล้วมาล้างตา!' }
+];
+const qz = $('#quiz');
+const S = { state:'intro', list:[], i:0, score:0, lives:3, streak:0, correct:0, ll:{fifty:true, time:true}, left:0, total:0, last:0, timer:0, choices:[], hidden:[], picked:-1, gain:0, why:'' };
+const shuffle = a => { for (let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+const best = () => +(store.get('adcquest-best') || 0);
+const hearts = n => '❤'.repeat(n) + '<span class="muted">' + '♡'.repeat(3-n) + '</span>';
+
+function quizRender(){
+  if (S.state === 'intro'){
+    qz.innerHTML = `<div class="card" style="text-align:center">
+      <p class="eyebrow">Mini-game</p><h2>ADC <span class="grad">Quest</span></h2>
+      <p class="lead" style="margin:0 auto">ตอบ 10 ข้อ (ง่าย → ยาก) · มี <b>3 หัวใจ</b> ตอบผิดหรือหมดเวลาเสียหัวใจ 1 ดวง</p>
+      <p class="muted small">ตอบเร็ว = โบนัสเวลา · ตอบถูกติดกัน = ตัวคูณคะแนน · ช่วยเหลือ: <b>50:50</b> และ <b>+10 วินาที</b> (อย่างละ 1 ครั้ง)<br>เลือกคำตอบด้วยเมาส์ หรือกดปุ่ม <kbd class="chipbit">1</kbd>–<kbd class="chipbit">4</kbd></p>
+      <p class="muted small">คะแนนสูงสุดในเครื่องนี้: <b class="mono">${best()}</b></p>
+      <button class="btn primary" data-act="start" style="font-size:1.15em;padding:.6em 1.8em">▶ เริ่มเกม</button></div>`;
+  } else if (S.state === 'asking' || S.state === 'feedback'){
+    const q = S.list[S.i], fb = S.state === 'feedback';
+    const mult = 1 + 0.2*Math.min(S.streak,5);
+    qz.innerHTML = `<div class="hud"><span>ข้อ ${S.i+1} / ${S.list.length} <span class="diff">${['','ง่าย','กลาง','ยาก'][q.d]}</span></span><span class="hearts" aria-label="หัวใจ ${S.lives} ดวง">${hearts(S.lives)}</span><span>🔥 ×${mult.toFixed(1)}</span><span>คะแนน <b id="qScore" style="color:var(--accent2)">${S.score}</b></span></div>
+      <div class="tbar" aria-hidden="true"><i id="qTime" style="width:${S.left/S.total*100}%"></i></div>
+      <div class="qtext">${q.q}</div>
+      <div class="choices">${S.choices.map((c,k)=>{
+        let cls = 'choice';
+        if (S.hidden.includes(k)) cls += ' gone';
+        if (fb){ if (c.ok) cls += ' right'; else if (k === S.picked) cls += ' wrong'; else cls += ' dim'; }
+        return `<button class="${cls}" data-act="pick" data-k="${k}" ${fb?'disabled':''}><kbd>${k+1}</kbd><span>${c.t}</span></button>`; }).join('')}</div>
+      ${fb ? `<div class="explain ${S.gain>0?'good':'bad'}"><b>${S.why}</b><br>${q.e}</div>
+        <p style="text-align:right;margin-top:.7em"><button class="btn primary" data-act="next">${(S.lives<=0||S.i+1>=S.list.length)?'ดูผลคะแนน ▶':'ข้อต่อไป ▶'}</button> <span class="muted small">(Enter / Space)</span></p>`
+      : `<div class="row" style="margin-top:.8em"><button class="btn" data-act="fifty" ${S.ll.fifty?'':'disabled'}>✂ 50:50</button><button class="btn" data-act="time" ${S.ll.time?'':'disabled'}>⏱ +10 วินาที</button><span class="muted small mono" id="qSec" style="margin-left:auto">${Math.ceil(S.left)} วิ</span></div>`}`;
+  } else {
+    const rank = RANKS.find(r => S.correct >= r.min), prev = S.prevBest, isBest = S.isBest;
+    qz.innerHTML = `<div class="card" style="text-align:center">
+      <p class="eyebrow">${S.lives<=0?'หมดหัวใจ — เกมจบ':'จบเกม'}</p>
+      <div class="big">${S.score}</div><p class="muted">คะแนนรวม ${isBest?'· 🎉 สถิติใหม่!':'· สถิติเดิม ' + prev}</p>
+      <h2 style="margin:.3em 0">${rank.t}</h2><p class="lead" style="margin:0 auto">${rank.s}</p>
+      <p>ตอบถูก <b class="mono">${S.correct}</b> / ${S.list.length} ข้อ</p>
+      <button class="btn primary" data-act="start" style="font-size:1.1em;padding:.5em 1.6em">↻ เล่นอีกครั้ง (สุ่มโจทย์ใหม่)</button></div>`;
+  }
+}
+function quizStart(){
+  const by = d => shuffle(Q.filter(q => q.d === d));
+  Object.assign(S, { list:[...by(1).slice(0,3), ...by(2).slice(0,5), ...by(3).slice(0,2)], i:0, score:0, lives:3, streak:0, correct:0, ll:{fifty:true,time:true} });
+  quizAsk();
+}
+function quizAsk(){
+  const q = S.list[S.i];
+  S.choices = shuffle(q.c.map((t,k) => ({ t, ok: k === 0 })));
+  S.hidden = []; S.picked = -1; S.total = S.left = TIME[q.d]; S.state = 'asking';
+  quizRender(); timerStart();
+}
+function timerStop(){ clearInterval(S.timer); S.timer = 0; }
+function timerStart(){
+  timerStop(); S.last = performance.now();
+  S.timer = setInterval(() => {
+    const now = performance.now(); S.left -= (now - S.last)/1000; S.last = now;
+    if (S.left <= 0){ S.left = 0; quizAnswer(-1); return; }
+    const t = $('#qTime'); if (t){ t.style.width = (S.left/S.total*100) + '%'; t.classList.toggle('low', S.left < 5); }
+    const s = $('#qSec'); if (s) s.textContent = Math.ceil(S.left) + ' วิ';
+  }, 100);
+}
+function quizAnswer(k){
+  if (S.state !== 'asking') return;
+  timerStop();
+  const q = S.list[S.i], ok = k >= 0 && S.choices[k].ok;
+  S.picked = k; S.state = 'feedback';
+  if (ok){
+    const mult = 1 + 0.2*Math.min(S.streak,5);
+    S.gain = Math.round((100*q.d + 10*Math.ceil(S.left)) * mult);
+    S.score += S.gain; S.streak++; S.correct++; S.why = `✔ ถูกต้อง! +${S.gain} คะแนน`;
+  } else {
+    S.gain = 0; S.streak = 0; S.lives--; S.why = k < 0 ? '⏰ หมดเวลา! เสียหัวใจ 1 ดวง' : '✖ ยังไม่ถูก เสียหัวใจ 1 ดวง';
+  }
+  quizRender();
+}
+function quizNext(){
+  if (S.state !== 'feedback') return;
+  if (S.lives <= 0 || S.i+1 >= S.list.length){
+    // บันทึกสถิติครั้งเดียวตอนจบเกม (ไม่ทำใน render เพราะ render ถูกเรียกซ้ำได้ เช่น ตอนย่อ/ขยายหน้าต่าง)
+    S.prevBest = best(); S.isBest = S.score > S.prevBest;
+    if (S.isBest) store.set('adcquest-best', String(S.score));
+    S.state = 'result'; quizRender();
+  } else { S.i++; quizAsk(); }
+}
+function quizFifty(){
+  if (S.state !== 'asking' || !S.ll.fifty) return;
+  S.ll.fifty = false;
+  S.hidden = shuffle(S.choices.map((c,k)=>({c,k})).filter(x=>!x.c.ok)).slice(0,2).map(x=>x.k);
+  quizRender();
+}
+function quizTime(){
+  if (S.state !== 'asking' || !S.ll.time) return;
+  S.ll.time = false; S.left += 10; S.total = Math.max(S.total, S.left); quizRender();
+}
+qz.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  ({ start:quizStart, next:quizNext, fifty:quizFifty, time:quizTime, pick:() => quizAnswer(+b.dataset.k) })[b.dataset.act]?.();
+});
+const quizBusy = () => S.state === 'asking' || S.state === 'feedback';
+function quizKey(e){
+  if (S.state === 'asking' && /^[1-4]$/.test(e.key)){ const k = +e.key - 1; if (!S.hidden.includes(k)) quizAnswer(k); return true; }
+  if (S.state === 'feedback' && (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight')){ quizNext(); return true; }
+  if (quizBusy() && (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown' || e.key === 'PageUp')) return true;
+  return false;
+}
+
+/* ───────────── Deck ───────────── */
+const slides = $$('.slide');
+let cur = 0;
+const hooks = {
+  's-title':    { enter: titleStart, leave: titleStop },
+  's-why':      { enter: drawWhy },
+  's-steps':    { enter: drawSteps },
+  's-sampling': { enter: drawAlias },
+  's-quant':    { enter: drawQuant },
+  's-calc':     { enter: () => calcUpdate() },
+  's-sar':      { enter: sarRender, leave: sarStop },
+  's-daclab':   { enter: dacDraw },
+  's-quiz':     { enter: () => { quizRender(); if (S.state === 'asking') timerStart(); }, leave: timerStop }
+};
+function show(i, instant){
+  i = clamp(i, 0, slides.length-1);
+  const prevId = slides[cur].id;
+  if (i !== cur) hooks[prevId]?.leave?.();
+  cur = i;
+  slides.forEach((s,k) => { s.classList.toggle('active', k === i); s.classList.toggle('before', k < i); });
+  slides[i].scrollTop = 0;
+  $('#count').textContent = `${i+1} / ${slides.length}`;
+  $('#ttl').textContent = slides[i].dataset.title || '';
+  $('#progress').style.width = ((i+1)/slides.length*100) + '%';
+  $('#notes').innerHTML = '<b>โน้ตผู้พูด:</b> ' + (slides[i].dataset.note || '—');
+  $('#prev').disabled = i === 0; $('#next').disabled = i === slides.length-1;
+  hooks[slides[i].id]?.enter?.();
+  try { history.replaceState(null, '', '#' + (i+1)); } catch(e){}
+}
+const redrawNow = () => { hooks[slides[cur].id]?.enter?.(); };
+
+$('#prev').addEventListener('click', () => show(cur-1));
+$('#next').addEventListener('click', () => show(cur+1));
+$('#bNotes').addEventListener('click', () => $('#notes').classList.toggle('on'));
+$('#bTheme').addEventListener('click', toggleTheme);
+$('#bFs').addEventListener('click', toggleFs);
+function toggleTheme(){
+  const t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = t; store.set('adc-theme', t); redrawNow();
+}
+function toggleFs(){
+  if (document.fullscreenElement) document.exitFullscreen?.(); else document.documentElement.requestFullscreen?.().catch(()=>{});
+}
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (slides[cur].id === 's-quiz' && quizKey(e)){ e.preventDefault(); return; }
+  if (tag === 'input' && e.target.type === 'number') return;
+  const k = e.key;
+  if (tag === 'input' && e.target.type === 'range' && (k === 'ArrowLeft' || k === 'ArrowRight')) return; // ให้ slider ใช้ลูกศรเองเมื่อโฟกัสด้วยคีย์บอร์ด
+  if (k === 'ArrowRight' || k === 'PageDown' || (k === ' ' && tag !== 'button')){ e.preventDefault(); show(cur+1); }
+  else if (k === 'ArrowLeft' || k === 'PageUp'){ e.preventDefault(); show(cur-1); }
+  else if (k === 'Home'){ show(0); } else if (k === 'End'){ show(slides.length-1); }
+  else if (k === 'f' || k === 'F'){ toggleFs(); }
+  else if (k === 't' || k === 'T'){ toggleTheme(); }
+  else if (k === 'n' || k === 'N'){ $('#notes').classList.toggle('on'); }
+});
+// ลากเมาส์/นิ้วเสร็จแล้วปล่อยโฟกัส เพื่อให้ลูกศรกลับไปเลื่อนสไลด์ตามปกติตอนพรีเซนต์
+$$('input[type=range]').forEach(r => { r.addEventListener('pointerup', () => r.blur()); });
+let tx = null;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive:true });
+document.addEventListener('touchend', e => {
+  if (tx === null || e.target.closest('input,canvas,#quiz,.tw,pre')) { tx = null; return; }
+  const dx = e.changedTouches[0].clientX - tx; tx = null;
+  if (Math.abs(dx) > 60) show(cur + (dx < 0 ? 1 : -1));
+}, { passive:true });
+let rz = 0; window.addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(redrawNow); });
+
+/* ───────────── Wire up controls ───────────── */
+['fsSteps','nSteps'].forEach(id => $('#'+id).addEventListener('input', drawSteps));
+['fA','fsA'].forEach(id => $('#'+id).addEventListener('input', drawAlias));
+$$('[data-pre]').forEach(b => b.addEventListener('click', () => { const [f, fs] = b.dataset.pre.split(','); $('#fA').value = f; $('#fsA').value = fs; drawAlias(); }));
+$('#nQ').addEventListener('input', drawQuant);
+$('#calcVin').addEventListener('input', () => calcUpdate());
+$('#calcCode').addEventListener('input', () => calcUpdate('code'));
+$$('[data-vref]').forEach(b => b.addEventListener('click', () => { calc.vref = +b.dataset.vref; calcUpdate(); }));
+$$('[data-bits]').forEach(b => b.addEventListener('click', () => { calc.bits = +b.dataset.bits; calcUpdate(); }));
+$('#preUno').addEventListener('click', () => { calc.vref = 5; calc.bits = 10; $('#calcVin').value = 2.5; calcUpdate(); });
+$('#preEsp').addEventListener('click', () => { calc.vref = 3.3; calc.bits = 12; $('#calcVin').value = 1.65; calcUpdate(); });
+$('#sarVin').addEventListener('input', () => { sarStop(); sar.shown = 0; $('#sarGo').disabled = false; sarRender(); });
+$('#sarGo').addEventListener('click', sarGo);
+$('#sarReset').addEventListener('click', sarReset);
+$$('[data-dac]').forEach(b => b.addEventListener('click', () => { dacCode = +b.dataset.dac; dacDraw(); }));
+$('#nDac').addEventListener('input', dacDraw);
+$('#lpfDac').addEventListener('change', dacDraw);
+
+dacBuild();
+const savedTheme = store.get('adc-theme'); if (savedTheme === 'light' || savedTheme === 'dark') document.documentElement.dataset.theme = savedTheme;
+const startAt = parseInt((location.hash || '').slice(1), 10);
+show(Number.isFinite(startAt) ? startAt-1 : 0);
+setTimeout(redrawNow, 120);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(redrawNow).catch(()=>{});
+})();
+</script>
+</body>
+</html>
