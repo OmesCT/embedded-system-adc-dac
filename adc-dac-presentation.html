@@ -320,35 +320,35 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
 
 <!-- 02 ───── โลกจริง → AI ───── -->
 <section class="slide" id="s-pipeline" data-title="Why convert · System view"
-  data-note="โลกจริงต่อเนื่อง แต่ MCU เก็บได้แค่ตัวเลข ADC คือขาเข้า DAC หรือ PWM คือขาออก ดูคลื่นอนาล็อกวิ่งเข้า ADC กลายเป็นบิต ผ่านโมเดล AI แล้วออกทาง DAC กลับเป็นแรงดัน ทุกระบบ AIoT ของเรามีโครงนี้">
+  data-note="โลกจริงเป็นคลื่นต่อเนื่อง แต่คอมพิวเตอร์เก็บได้แค่ตัวเลข ADC แปลงโลกจริงเป็นตัวเลข DAC แปลงตัวเลขกลับเป็นสัญญาณจริง ดูคลื่นวิ่งเข้า ADC กลายเป็น 0/1 ผ่าน AI แล้วออกทาง DAC ระบบ AIoT ทุกอย่างมีโครงนี้ เช่น ฟาร์มอัจฉริยะ สั่งงานด้วยเสียง เฝ้าสุขภาพ">
   <div class="wrap">
     <p class="kicker"><i></i>Why convert? · System view</p>
-    <h2>โลกจริงเป็น <span class="grad">อนาล็อก</span> แต่ MCU เข้าใจแค่ <span class="grad">0 กับ 1</span></h2>
+    <h2>โลกจริงเป็น <span class="grad">อนาล็อก</span> แต่คอมพิวเตอร์เข้าใจแค่ <span class="grad">0 กับ 1</span></h2>
     <canvas id="cPipe" class="cv scope" style="height:clamp(200px,34vh,300px)" role="img" aria-label="แอนิเมชันสัญญาณอนาล็อกเข้า ADC กลายเป็นบิต ผ่าน MCU และ AI ออก DAC กลับเป็นอนาล็อก"></canvas>
-    <p class="muted" style="margin:.6em 0 .2em"><b>ADC</b> พาข้อมูลจากโลกจริง <b>เข้า</b>ระบบดิจิทัล · <b>DAC / PWM</b> พาผลลัพธ์ <b>ออก</b>ไปสั่งลำโพง มอเตอร์ ปั๊ม</p>
+    <p class="muted" style="margin:.6em 0 .2em"><b>ADC</b> แปลงโลกจริงให้เป็นตัวเลข (ขาเข้า) · <b>DAC</b> แปลงตัวเลขกลับเป็นสัญญาณจริง (ขาออก) เช่น ส่งเสียงออกลำโพง</p>
     <div class="grid g3">
-      <div class="card"><div class="ico">🌱</div><h3>ฟาร์มอัจฉริยะ</h3><p class="muted small">เซ็นเซอร์ความชื้นดิน → <b>ADC</b> → โมเดลตัดสินใจ → <b>PWM</b> → ปั๊มน้ำ</p></div>
-      <div class="card"><div class="ico">🎙️</div><h3>สั่งงานด้วยเสียง</h3><p class="muted small">ไมโครโฟน → <b>ADC</b> (16 kHz) → TinyML จับคำสั่ง → <b>DAC</b>/I²S → ลำโพง</p></div>
-      <div class="card"><div class="ico">❤️</div><h3>เฝ้าระวังสุขภาพ</h3><p class="muted small">สัญญาณหัวใจ ECG → <b>ADC</b> → AI ตรวจความผิดปกติ → แจ้งเตือนมือถือ</p></div>
+      <div class="card"><div class="ico">🌱</div><h3>ฟาร์มอัจฉริยะ</h3><p class="muted small">เซ็นเซอร์ความชื้นดิน → <b>ADC</b> → สมองของบอร์ดตัดสินใจ → เปิดปั๊มน้ำ</p></div>
+      <div class="card"><div class="ico">🎙️</div><h3>สั่งงานด้วยเสียง</h3><p class="muted small">ไมโครโฟน → <b>ADC</b> → AI ฟังออกว่าสั่งอะไร → <b>DAC</b> → ลำโพงตอบกลับ</p></div>
+      <div class="card"><div class="ico">❤️</div><h3>เฝ้าระวังสุขภาพ</h3><p class="muted small">สัญญาณหัวใจ → <b>ADC</b> → AI ตรวจความผิดปกติ → แจ้งเตือนมือถือ</p></div>
     </div>
   </div>
 </section>
 
 <!-- 03 ───── ADC 3 ขั้นตอน + ความละเอียด ───── -->
 <section class="slide" id="s-adc" data-title="ADC · 3 steps · Resolution"
-  data-note="แท็บแรก: กดการ์ด 1-2-3 หรือเล่นทีละขั้น สุ่ม ปัดเป็นระดับ (เส้นชมพูคือ error) เข้ารหัสเป็นเลขฐานสอง ข้อมูลที่ MCU ได้คือชุดตัวเลขด้านล่าง ลองลดบิตเหลือ 2-3 จะเห็นความหยาบ ตัวเลขด้านบนขวาคือจำนวนระดับ LSB และ SQNR ที่เพิ่มราว 6 dB ต่อบิต แท็บสอง: ลากเมาส์บนภาพเทียบต้นฉบับกับภาพที่ลดบิตต่อช่องสี กล้องก็มี ADC เหมือนกัน">
+  data-note="แท็บแรก: กดการ์ด 1-2-3 หรือกดเล่นทีละขั้น ขั้น 1 สุ่มดูค่า ขั้น 2 ปัดเป็นขั้นใกล้สุด (เส้นชมพูคือส่วนที่พลาดไป) ขั้น 3 แปลงเป็นเลข 0/1 ลองลดบิตเหลือ 2-3 จะเห็นว่าหยาบมาก บิตมากเท่าไหร่ ยิ่งละเอียด แท็บสอง: ลากเมาส์บนภาพเทียบต้นฉบับกับภาพที่ลดบิต กล้องก็ใช้ ADC เหมือนกัน">
   <div class="wrap">
     <p class="kicker"><i></i>How ADC works</p>
-    <h2>ADC = <span class="grad">สุ่ม → ปัด → เข้ารหัส</span> · บิตคือความละเอียด</h2>
+    <h2>ADC = <span class="grad">สุ่ม → ปัด → เข้ารหัส</span> · บิตมาก = ละเอียดขึ้น</h2>
     <div class="seg" data-tabs style="margin-bottom:.8em">
       <button class="btn" data-tab="tabSteps" aria-pressed="true">⚙ 3 ขั้นตอนของ ADC</button>
       <button class="btn" data-tab="tabImg" aria-pressed="false">🖼 ดูผลของจำนวนบิต (ภาพ)</button>
     </div>
     <div id="tabSteps" class="tabpanel">
       <div class="grid g3" id="stepCards" style="margin-bottom:.8em">
-        <div class="card" data-layer="1" role="button" tabindex="0" style="cursor:pointer;padding:.7em 1em"><h3 style="margin:0"><span class="num">1</span>Sampling</h3><p class="muted small" style="margin:.2em 0 0">สุ่มอ่านแรงดันเป็นช่วงเวลา (อัตรา <b>fs</b>)</p></div>
-        <div class="card" data-layer="2" role="button" tabindex="0" style="cursor:pointer;padding:.7em 1em"><h3 style="margin:0"><span class="num">2</span>Quantization</h3><p class="muted small" style="margin:.2em 0 0">ปัดเป็น <b>ระดับ</b> ที่ใกล้ที่สุด (2<sup>N</sup> ระดับ)</p></div>
-        <div class="card" data-layer="3" role="button" tabindex="0" style="cursor:pointer;padding:.7em 1em"><h3 style="margin:0"><span class="num">3</span>Encoding</h3><p class="muted small" style="margin:.2em 0 0">แปลงเป็น <b>เลขฐานสอง N บิต</b> ส่งให้ MCU</p></div>
+        <div class="card" data-layer="1" role="button" tabindex="0" style="cursor:pointer;padding:.7em 1em"><h3 style="margin:0"><span class="num">1</span>Sampling</h3><p class="muted small" style="margin:.2em 0 0"><b>สุ่ม</b>ดูค่าแรงดันเป็นช่วง ๆ เหมือนถ่ายภาพทีละเฟรม</p></div>
+        <div class="card" data-layer="2" role="button" tabindex="0" style="cursor:pointer;padding:.7em 1em"><h3 style="margin:0"><span class="num">2</span>Quantization</h3><p class="muted small" style="margin:.2em 0 0"><b>ปัด</b>ค่าให้เป็นขั้นที่ใกล้ที่สุด เหมือนปัดเศษ</p></div>
+        <div class="card" data-layer="3" role="button" tabindex="0" style="cursor:pointer;padding:.7em 1em"><h3 style="margin:0"><span class="num">3</span>Encoding</h3><p class="muted small" style="margin:.2em 0 0"><b>แปลงเป็นเลข 0/1</b> ส่งให้ไมโครคอนโทรลเลอร์</p></div>
       </div>
       <div class="grid g2" style="align-items:start">
         <div>
@@ -356,13 +356,13 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
           <div class="legend"><span style="color:var(--muted)"><i style="background:var(--muted)"></i>สัญญาณจริง</span><span style="color:var(--cyan)"><i style="background:var(--cyan)"></i>จุดที่สุ่ม</span><span style="color:var(--amber)"><i style="background:var(--amber)"></i>ค่าหลังปัด</span><span style="color:var(--pink)"><i style="background:var(--pink)"></i>error</span></div>
         </div>
         <div>
-          <label class="ctl" style="margin-top:0"><span>อัตราสุ่ม fs = <b id="fsStepsV">16</b> ตัวอย่าง/วินาที (สัญญาณ 2 Hz)</span><input type="range" id="fsSteps" min="4" max="64" value="16"></label>
-          <label class="ctl"><span>ความละเอียด N = <b id="nStepsV">3</b> บิต (Vref = 3.3 V)</span><input type="range" id="nSteps" min="1" max="8" value="3"></label>
-          <div class="sg4">
-            <div class="stat"><b id="qLevels">8</b><span>ระดับ 2<sup>N</sup></span></div>
-            <div class="stat"><b id="qLsb">412.5 mV</b><span>LSB = Vref/2<sup>N</sup></span></div>
-            <div class="stat"><b id="qErr">±206 mV</b><span>error ≤ ±½ LSB</span></div>
-            <div class="stat"><b id="qSnr">19.8 dB</b><span>SQNR 6.02N+1.76</span></div>
+          <label class="ctl" style="margin-top:0"><span>สุ่มกี่ครั้งต่อวินาที = <b id="fsStepsV">16</b> ครั้ง</span><input type="range" id="fsSteps" min="4" max="64" value="16"></label>
+          <label class="ctl"><span>ความละเอียด = <b id="nStepsV">3</b> บิต (ยิ่งมาก ยิ่งละเอียด)</span><input type="range" id="nSteps" min="1" max="8" value="3"></label>
+          <div class="sg4" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+            <div class="stat"><b id="qLevels">8</b><span>จำนวนระดับ</span></div>
+            <div class="stat"><b id="qLsb">412.5 mV</b><span>แต่ละขั้นห่างกัน</span></div>
+            <div class="stat"><b id="qErr">±206 mV</b><span>พลาดได้ไม่เกิน</span></div>
+            <div class="stat" hidden><b id="qSnr"></b><span></span></div>
           </div>
           <div class="row" style="margin:.5em 0 .2em"><button class="btn primary" id="stepsPlay">▶ เล่นทีละขั้น</button><button class="btn" id="stepsAll">แสดงทั้งหมด</button></div>
           <div id="codesSteps"></div>
@@ -381,7 +381,7 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
             <div class="stat"><b id="imgLv">8</b><span>ระดับต่อช่องสี (2<sup>N</sup>)</span></div>
             <div class="stat"><b id="imgColors">512</b><span>สีทั้งหมด (2<sup>N</sup>)³</span></div>
           </div>
-          <p class="muted small" style="margin-top:.7em">กล้องดิจิทัลก็ใช้ ADC แปลงแสงเป็นตัวเลข ภาพทั่วไปใช้ 8 บิตต่อช่องสี = 16.7 ล้านสี หลักการเดียวกับเสียงและเซ็นเซอร์ ยิ่งบิตมาก ยิ่งละเอียด</p>
+          <p class="muted small" style="margin-top:.7em">กล้องดิจิทัลก็ใช้ ADC แปลงแสงเป็นตัวเลขเหมือนกัน ภาพทั่วไปใช้ 8 บิตต่อสี = 16.7 ล้านสี ยิ่งบิตมาก ภาพยิ่งเนียน</p>
         </div>
       </div>
     </div>
@@ -390,11 +390,12 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
 
 <!-- 04 ───── Nyquist: ดู + ฟัง ───── -->
 <section class="slide" id="s-nyquist" data-title="Nyquist · Aliasing"
-  data-note="แท็บดูภาพ: กด preset สุ่มพอ ใกล้ขอบ แล้ว Aliasing สังเกตเส้นประชมพูที่ผ่านจุดสุ่มชุดเดียวกัน MCU แยกไม่ออกว่าเป็นสัญญาณไหน แท็บฟังเสียง: เตือนให้เบาเสียงก่อน กดเล่นที่ 44.1 kHz จะได้ยินเสียงสูงขึ้นปกติ ลดเป็น 8 kHz จะได้ยินสูงขึ้นแล้ววกกลับลงเอง นั่นคือ Aliasing เปิด Anti-aliasing filter จะเงียบแทนที่จะเพี้ยน ลดบิตเหลือ 2-4 จะได้ยินเสียงแตกซ่าคือ quantization noise">
+  data-note="เปรียบเทียบง่ายๆ: ล้อรถในหนังที่ดูหมุนย้อนกลับ เพราะกล้องถ่ายไม่ถี่พอ แท็บดูภาพ: กดปุ่มสุ่มพอ ใกล้ขอบ แล้ว Aliasing เส้นประสีชมพูคือสิ่งที่ไมโครคอนโทรลเลอร์เห็น ซึ่งไม่ใช่ของจริง แท็บฟังเสียง: เตือนให้เบาเสียงก่อน กดเล่นที่ 44.1 kHz จะได้ยินเสียงสูงขึ้นปกติ ลดเป็น 8 kHz จะได้ยินสูงขึ้นแล้ววกกลับลงเอง นั่นคือ Aliasing ติ๊กเปิดฟิลเตอร์จะเงียบแทนที่จะเพี้ยน ลดบิตเหลือ 2-4 เสียงจะแตกซ่า">
   <div class="wrap">
     <p class="kicker"><i></i>Sampling theory</p>
     <h2>Nyquist: ต้องสุ่ม <span class="grad">เร็วกว่า 2 เท่า</span> ไม่งั้นเสียง<span class="grad">เพี้ยน</span></h2>
-    <span class="formula">fs &gt; 2 · f<sub>max</sub> &nbsp;&nbsp;|&nbsp;&nbsp; f<sub>alias</sub> = | f − k·fs | &nbsp;(k = จำนวนเต็มที่ใกล้ที่สุด)</span>
+    <span class="formula">อัตราสุ่ม &gt; 2 × ความถี่สูงสุดของสัญญาณ</span>
+    <p class="muted small" style="margin:.2em 0 .4em">เหมือนล้อรถในหนังที่ดูหมุนย้อนกลับ เพราะกล้องถ่ายภาพไม่ถี่พอ</p>
     <div class="seg" data-tabs style="margin:.3em 0 .8em">
       <button class="btn" data-tab="tabAlias" aria-pressed="true">📈 ดู Aliasing</button>
       <button class="btn" data-tab="tabSound" aria-pressed="false">🔊 ฟังเสียง</button>
@@ -406,11 +407,11 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
           <div class="legend"><span style="color:var(--cyan)"><i style="background:var(--cyan)"></i><span style="color:var(--muted)">สัญญาณจริง</span></span><span style="color:var(--amber)"><i style="background:var(--amber)"></i><span style="color:var(--muted)">จุดที่ ADC สุ่มได้</span></span><span style="color:var(--pink)"><i style="background:var(--pink)"></i><span style="color:var(--muted)">สัญญาณที่ MCU "เห็น" (alias)</span></span></div>
         </div>
         <div>
-          <label class="ctl" style="margin-top:0"><span>ความถี่สัญญาณ f = <b id="fAV">5</b> Hz</span><input type="range" id="fA" min="1" max="40" value="5"></label>
-          <label class="ctl"><span>อัตราสุ่ม fs = <b id="fsAV">40</b> Hz</span><input type="range" id="fsA" min="4" max="64" value="40"></label>
+          <label class="ctl" style="margin-top:0"><span>ความถี่ของสัญญาณ = <b id="fAV">5</b> Hz</span><input type="range" id="fA" min="1" max="40" value="5"></label>
+          <label class="ctl"><span>อัตราสุ่ม = <b id="fsAV">40</b> ครั้ง/วินาที</span><input type="range" id="fsA" min="4" max="64" value="40"></label>
           <div class="row"><button class="btn" data-pre="5,40">✔ สุ่มพอ</button><button class="btn" data-pre="18,40">⚠ ใกล้ขอบ</button><button class="btn" data-pre="36,40">✖ Aliasing</button></div>
           <div id="statAlias" class="status ok"></div>
-          <p class="muted small">ทางแก้: ใส่ <b>Anti-aliasing low-pass filter</b> ก่อนเข้า ADC เพื่อตัดความถี่เกิน fs/2 ทิ้ง</p>
+          <p class="muted small">ทางแก้: ใส่<b>ฟิลเตอร์</b>ก่อนเข้า ADC เพื่อตัดความถี่สูงเกินไปทิ้งก่อนสุ่ม</p>
         </div>
       </div>
     </div>
@@ -421,11 +422,11 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
           <div class="legend"><span style="color:var(--cyan)"><i style="background:var(--cyan)"></i><span style="color:var(--muted)">ความถี่จริง (กวาด 200 Hz → 10 kHz)</span></span><span style="color:var(--pink)"><i style="background:var(--pink)"></i><span style="color:var(--muted)">ความถี่ที่ "ได้ยิน"</span></span><span style="color:var(--amber)"><i style="background:var(--amber)"></i><span style="color:var(--muted)">Nyquist = fs/2</span></span></div>
         </div>
         <div>
-          <div class="ctl" style="margin-top:0"><span>อัตราสุ่ม fs</span><div class="seg" id="sFs">
+          <div class="ctl" style="margin-top:0"><span>อัตราสุ่ม (ครั้ง/วินาที)</span><div class="seg" id="sFs">
             <button class="btn" data-sfs="4000" aria-pressed="false">4 kHz</button><button class="btn" data-sfs="8000" aria-pressed="true">8 kHz</button><button class="btn" data-sfs="16000" aria-pressed="false">16 kHz</button><button class="btn" data-sfs="44100" aria-pressed="false">44.1 kHz</button></div></div>
           <div class="ctl"><span>ความละเอียด</span><div class="seg" id="sBits">
             <button class="btn" data-sbits="2" aria-pressed="false">2 บิต</button><button class="btn" data-sbits="4" aria-pressed="false">4 บิต</button><button class="btn" data-sbits="8" aria-pressed="false">8 บิต</button><button class="btn" data-sbits="16" aria-pressed="true">16 บิต</button></div></div>
-          <label class="ctl row" style="gap:.6em"><input type="checkbox" id="sAA"><span style="margin:0">เปิด Anti-aliasing filter (ตัดความถี่เกิน fs/2 ก่อนสุ่ม)</span></label>
+          <label class="ctl row" style="gap:.6em"><input type="checkbox" id="sAA"><span style="margin:0">เปิดฟิลเตอร์ป้องกันเสียงเพี้ยน (ตัดเสียงสูงเกินก่อนสุ่ม)</span></label>
           <div class="row" style="margin-top:.3em"><button class="btn primary big" id="sPlay">▶ เล่นเสียงกวาดความถี่</button></div>
           <p class="muted small" id="sInfo" style="margin-top:.5em"></p>
           <p class="muted small">⚠ ปรับเสียงลำโพงให้เบาก่อนกดเล่น</p>
@@ -437,44 +438,40 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
 
 <!-- 05 ───── ADC ชนิด + DAC + บอร์ดจริง ───── -->
 <section class="slide" id="s-board" data-title="Types · DAC · Real boards"
-  data-note="ไม่มี ADC แบบไหนดีที่สุด เป็นการแลกกัน ใน ESP32 และ Arduino เป็นแบบ SAR ซึ่งทายทีละบิตด้วย DAC ที่อยู่ข้างใน DAC ทำสิ่งตรงข้าม ถ้าชิปไม่มี DAC ใช้ PWM กับตัวกรอง RC แทน ESP32 รุ่นดั้งเดิมมี DAC 2 ช่อง รุ่น S3 ไม่มี ต้องตรวจกับบอร์ดที่อาจารย์แจก และเน้นว่า ADC2 ใช้ไม่ได้ตอนเปิด Wi-Fi ซึ่ง AIoT ต้องใช้แน่นอน ปิดท้ายด้วยสามสูตรที่ต้องจำ">
+  data-note="ADC ไม่มีแบบไหนดีที่สุด เป็นการแลกกันระหว่างความเร็วกับความละเอียด ESP32 และ Arduino ใช้แบบ SAR ซึ่งสมดุลที่สุด DAC ทำสิ่งตรงข้าม ถ้าชิปไม่มี DAC ใช้ PWM กับตัวกรอง RC แทน ESP32 รุ่นเดิมมี DAC 2 ช่อง รุ่น S3 ไม่มี ต้องตรวจกับบอร์ดที่อาจารย์แจก เน้นว่าเปิด Wi-Fi แล้วขา ADC2 ใช้ไม่ได้ ให้ใช้ ADC1 ปิดท้ายด้วยสามอย่างที่ต้องจำ">
   <div class="wrap">
     <p class="kicker"><i></i>Types · DAC · Real boards</p>
-    <h2>ชนิดของ ADC · DAC · และ <span class="grad">ที่ต้องระวังบน ESP32</span></h2>
+    <h2>ADC หลายแบบ · DAC · และ <span class="grad">ที่ต้องระวังบน ESP32</span></h2>
     <div class="grid g3">
       <div class="card"><h3>🎯 ADC มีหลายแบบ</h3>
         <div class="meter"><em>Flash</em><div><i style="--v:100%"></i></div></div>
-        <p class="small muted" style="margin:0 0 .4em">เร็วสุด · ~6–8 บิต · กินไฟมาก</p>
+        <p class="small muted" style="margin:0 0 .4em">เร็วสุด แต่ละเอียดน้อย และกินไฟมาก</p>
         <div class="meter am" style="--x:1"><em><b style="color:var(--amber)">SAR ★</b></em><div><i style="--v:60%"></i></div></div>
-        <p class="small muted" style="margin:0 0 .4em">สมดุล · 8–18 บิต · <b>ใน ESP32/Uno</b> (ทายทีละบิต มี DAC ข้างใน)</p>
+        <p class="small muted" style="margin:0 0 .4em">สมดุลที่สุด · <b>ใช้ใน ESP32 และ Arduino</b></p>
         <div class="meter"><em>Sigma-Delta</em><div><i style="--v:100%;width:100%"></i></div></div>
-        <p class="small muted" style="margin:0 0 .4em">ละเอียดสุด 16–24+ บิต แต่ช้า (เครื่องชั่ง HX711)</p>
-        <div class="meter am"><em>Pipeline</em><div><i style="--v:80%"></i></div></div>
-        <p class="small muted" style="margin:0">เร็ว &gt; 5 MSPS · กล้อง/วิดีโอ/วิทยุ</p></div>
+        <p class="small muted" style="margin:0">ละเอียดมาก แต่ช้า เช่น เครื่องชั่งดิจิทัล</p></div>
       <div class="card"><h3>〰️ DAC: ตัวเลข → แรงดัน</h3>
-        <span class="formula" style="font-size:.78em">Vout = Vref × D / 2<sup>N</sup></span>
-        <p class="small muted">เช่น 3.3 V × 128 / 256 = <b>1.65 V</b></p>
+        <p class="small muted">ทำงานตรงข้ามกับ ADC เช่น ค่า 128 จากทั้งหมด 256 ระดับ ที่ 3.3 V → ได้ <b>1.65 V</b> (ครึ่งหนึ่ง)</p>
         <ul class="clean small" style="margin:0">
-          <li>สร้างด้วย <b>R-2R ladder</b> (ใช้ R กับ 2R) หรือ Sigma-Delta</li>
-          <li>ไม่มี DAC ในชิป → <b>PWM + RC low-pass</b> ใช้ได้ทุกบอร์ด</li>
-          <li>เอาต์พุตเป็นขั้นบันได → ต้องมี <b>reconstruction filter</b></li>
+          <li>ชิปไม่มี DAC → ใช้ <b>PWM + ตัวกรอง RC</b> แทน (ใช้ได้ทุกบอร์ด)</li>
+          <li>เอาต์พุตยังเป็นขั้นบันได → ผ่าน<b>ฟิลเตอร์</b>ให้เรียบ</li>
         </ul></div>
       <div class="card hl"><h3>⚠ Uno vs ESP32</h3>
         <div class="sg" style="margin-bottom:.5em">
-          <div class="stat"><b style="font-size:1.1em"><i data-count="10">10</i> บิต</b><span>Uno · 0–5 V · LSB 4.88 mV</span></div>
-          <div class="stat"><b style="font-size:1.1em"><i data-count="12">12</i> บิต</b><span>ESP32 · ~3.3 V · LSB 0.806 mV</span></div>
+          <div class="stat"><b style="font-size:1.1em"><i data-count="10">10</i> บิต</b><span>Uno · 0–5 V</span></div>
+          <div class="stat"><b style="font-size:1.1em"><i data-count="12">12</i> บิต</b><span>ESP32 · ~3.3 V</span></div>
         </div>
         <ul class="clean small" style="margin:0">
-          <li><b>ADC2</b> ใช้ไม่ได้เมื่อเปิด Wi-Fi → ใช้ขา <b>ADC1</b> (GPIO32–39)</li>
-          <li>ADC ไวต่อ noise → ตัวเก็บประจุ <b>0.1 µF</b> + เฉลี่ยหลายครั้ง</li>
-          <li>ไม่เป็นเส้นตรง → <code>analogReadMilliVolts()</code></li>
-          <li>DAC 8 บิต ×2 (GPIO25/26) · <b>S3 ไม่มี DAC</b></li>
+          <li>เปิด Wi-Fi แล้วขา <b>ADC2</b> ใช้ไม่ได้ → ใช้ <b>ADC1</b> (GPIO32–39)</li>
+          <li>ADC ไวต่อสัญญาณรบกวน → ใส่ตัวเก็บประจุ <b>0.1 µF</b> และอ่านหลายรอบแล้วเฉลี่ย</li>
+          <li>ESP32 รุ่นเดิมมี DAC 2 ช่อง · <b>รุ่น S3 ไม่มี</b> (ตรวจกับบอร์ดจริง)</li>
         </ul></div>
     </div>
-    <div class="grid g3" style="margin-top:.8em">
-      <span class="formula" style="margin:0;text-align:center">fs &gt; 2 · f<sub>max</sub></span>
-      <span class="formula" style="margin:0;text-align:center">LSB = Vref / 2<sup>N</sup></span>
-      <span class="formula" style="margin:0;text-align:center">SQNR ≈ 6.02N + 1.76 dB</span>
+    <p class="muted small" style="margin:.8em 0 .3em">3 อย่างที่ต้องจำ</p>
+    <div class="grid g3">
+      <span class="formula" style="margin:0;text-align:center">สุ่ม &gt; 2 × ความถี่สูงสุด</span>
+      <span class="formula" style="margin:0;text-align:center">จำนวนระดับ = 2<sup>N</sup></span>
+      <span class="formula" style="margin:0;text-align:center">ขั้นละ = Vref ÷ 2<sup>N</sup></span>
     </div>
     <p style="margin-top:.9em"><button class="btn primary big" data-goto="s-quiz">🎮 ทดสอบความเข้าใจ → ADC Quest</button></p>
   </div>
@@ -709,9 +706,9 @@ function drawAlias(){
   glowStroke(ctx, col.cyan, 2, 10);
   for (let n=0;n<=fs;n++){ const t=n/fs; dot(ctx, X(t), Y(Math.sin(TAU*f*t)), 4.8, col.amber, 12); }
   const st = $('#statAlias');
-  if (fs > 2*f){ st.className = 'status ok'; st.textContent = `✔ fs = ${fs} Hz > 2f = ${2*f} Hz — สุ่มพอ กู้สัญญาณกลับมาได้ครบ`; }
-  else if (fs === 2*f){ st.className = 'status warn'; st.textContent = '⚠ fs = 2f พอดี — ยังไม่พอ ต้องมากกว่า 2f (ตัวอย่างอาจตกที่ศูนย์ทั้งหมด)'; }
-  else { st.className = 'status bad'; st.textContent = `✖ Aliasing! สัญญาณ ${f} Hz ถูกมองเป็น ${Math.abs(fa)} Hz (fs = ${fs} Hz < 2f = ${2*f} Hz)`; }
+  if (fs > 2*f){ st.className = 'status ok'; st.textContent = `✔ สุ่ม ${fs} ครั้ง/วินาที มากกว่า 2 × ${f} = ${2*f} → สุ่มพอ ได้สัญญาณครบ`; }
+  else if (fs === 2*f){ st.className = 'status warn'; st.textContent = '⚠ สุ่มได้แค่ 2 เท่าพอดี ยังไม่พอ ต้องมากกว่า 2 เท่า'; }
+  else { st.className = 'status bad'; st.textContent = `✖ Aliasing! สัญญาณจริง ${f} Hz แต่ไมโครคอนโทรลเลอร์เห็นเป็น ${Math.abs(fa)} Hz (สุ่ม ${fs} น้อยกว่า 2 × ${f} = ${2*f})`; }
   syncRanges();
 }
 
@@ -728,7 +725,7 @@ function sndDraw(){
   const nyq = snd.fs/2;
   if (nyq < FM){
     ctx.setLineDash([7,6]); ctx.beginPath(); ctx.moveTo(pad.l, Y(nyq)); ctx.lineTo(w-pad.r, Y(nyq)); glowStroke(ctx, col.amber, 1.8, 8); ctx.setLineDash([]);
-    ctx.fillStyle = col.amber; ctx.font = `600 11px ${col.mono}`; ctx.fillText('Nyquist = fs/2 = ' + fmtHz(nyq), pad.l+8, Y(nyq)-6);
+    ctx.fillStyle = col.amber; ctx.font = `600 11px ${col.mono}`; ctx.fillText('ขีดจำกัด (Nyquist) = ' + fmtHz(nyq), pad.l+8, Y(nyq)-6);
   }
   const fAt = u => snd.f0 + (snd.f1 - snd.f0)*u;
   ctx.beginPath(); ctx.moveTo(X(0), Y(snd.f0)); ctx.lineTo(X(1), Y(snd.f1)); glowStroke(ctx, col.cyan, 2.4, 10);
@@ -752,10 +749,10 @@ function sndUi(){
   $$('[data-sbits]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.sbits === snd.bits));
   $('#sAA').checked = snd.aa;
   const nyq = snd.fs/2, tHit = (nyq - snd.f0)/(snd.f1 - snd.f0)*snd.dur;
-  let msg = nyq >= snd.f1 ? `fs = ${fmtHz(snd.fs)} สูงพอสำหรับเสียงกวาดนี้ (Nyquist ${fmtHz(nyq)} > 10 kHz) → ไม่เกิด Aliasing`
-    : snd.aa ? `ที่เวลา ≈ ${tHit.toFixed(1)} วินาที ความถี่ชนขีด Nyquist (${fmtHz(nyq)}) → filter ตัดเสียงทิ้ง จึงเงียบแทนที่จะเพี้ยน`
-    : `ที่เวลา ≈ ${tHit.toFixed(1)} วินาที ความถี่ชนขีด Nyquist (${fmtHz(nyq)}) แล้วเสียงจะ "วกกลับลง" ทั้งที่จริงสูงขึ้นเรื่อย ๆ`;
-  msg += ` · ${snd.bits} บิต = ${(2**snd.bits).toLocaleString()} ระดับ (SQNR ≈ ${(6.02*snd.bits + 1.76).toFixed(0)} dB)`;
+  let msg = nyq >= snd.f1 ? `สุ่ม ${fmtHz(snd.fs)} เร็วพอสำหรับเสียงนี้ (ขีดจำกัด ${fmtHz(nyq)} มากกว่า 10 kHz) → เสียงไม่เพี้ยน`
+    : snd.aa ? `ที่ประมาณวินาทีที่ ${tHit.toFixed(1)} เสียงสูงเกินขีดจำกัด (${fmtHz(nyq)}) → ฟิลเตอร์ตัดทิ้ง จึงเงียบแทนที่จะเพี้ยน`
+    : `ที่ประมาณวินาทีที่ ${tHit.toFixed(1)} เสียงสูงเกินขีดจำกัด (${fmtHz(nyq)}) แล้วจะได้ยินเสียง "วกกลับลง" ทั้งที่จริงสูงขึ้นเรื่อย ๆ`;
+  msg += ` · ${snd.bits} บิต = ${(2**snd.bits).toLocaleString()} ระดับ`;
   $('#sInfo').textContent = msg;
   $('#sPlay').textContent = snd.playing ? '■ หยุดเสียง' : '▶ เล่นเสียงกวาดความถี่';
 }
@@ -876,30 +873,25 @@ function rain(){
 
 /* ───────────── ควิซ ───────────── */
 const Q = [
- {d:1,q:'เซ็นเซอร์อุณหภูมิแบบอนาล็อกให้แรงดันต่อเนื่องออกมา ไมโครคอนโทรลเลอร์จะอ่านค่าได้ต้องผ่านวงจรอะไรก่อน?',c:['ADC','DAC','Flip-flop','Voltage regulator'],e:'ADC (Analog-to-Digital Converter) แปลงแรงดันต่อเนื่องเป็นตัวเลขที่ MCU ประมวลผลได้'},
- {d:1,q:'ลำดับขั้นตอนของ ADC ข้อใดถูกต้อง?',c:['Sampling → Quantization → Encoding','Encoding → Sampling → Quantization','Quantization → Encoding → Sampling','Sampling → Encoding → Quantization'],e:'สุ่มค่าตามเวลา (Sampling) → ปัดเป็นระดับ (Quantization) → แปลงเป็นเลขฐานสอง (Encoding)'},
- {d:1,q:'ADC ขนาด 10 บิต แบ่งแรงดันอินพุตได้กี่ระดับ?',c:['1,024','10','100','512'],e:'จำนวนระดับ = 2^N = 2^10 = 1,024 ระดับ (ค่า 0–1023 แบบ Arduino Uno)'},
- {d:1,q:'ADC แบบใดแปลงเร็วที่สุด แต่ความละเอียดมักไม่สูงและกินไฟมาก?',c:['Flash','Sigma-Delta','SAR','Dual-slope'],e:'Flash ใช้ตัวเปรียบเทียบ 2^N−1 ตัวทำงานพร้อมกัน จึงตัดสินได้ในรอบเดียว'},
- {d:1,q:'ถ้าบอร์ดไม่มี DAC ในตัว จะสร้างแรงดันอนาล็อกได้โดยวิธีใดที่นิยมที่สุด?',c:['PWM แล้วผ่าน low-pass filter (RC)','ต่อ LED ตรง ๆ','เพิ่มความถี่ clock','ใช้ตัวต้านทานตัวเดียว'],e:'PWM มีแรงดันเฉลี่ยเป็นสัดส่วนกับ duty cycle เมื่อผ่านตัวกรอง RC จะได้แรงดันเรียบ ๆ'},
- {d:1,q:'เพลงในแผ่นซีดีใช้ sampling rate เท่าไร (เพราะหูมนุษย์ได้ยินสูงสุดราว 20 kHz)?',c:['44.1 kHz','8 kHz','16 kHz','1 MHz'],e:'44.1 kHz > 2 × 20 kHz ตามทฤษฎีบท Nyquist พร้อมเผื่อให้ตัวกรอง anti-aliasing'},
- {d:2,q:'ADC 12 บิต, Vref = 3.3 V ค่า 1 LSB ประมาณเท่าไร?',c:['0.806 mV','3.22 mV','1.61 mV','0.403 mV'],e:'LSB = 3.3 / 4096 ≈ 0.806 mV'},
- {d:2,q:'สัญญาณความถี่ 1 kHz ตามทฤษฎีบท Nyquist ต้องสุ่มด้วยอัตราอย่างน้อยเท่าไร?',c:['มากกว่า 2 kHz','500 Hz','1 kHz พอดี','มากกว่า 100 Hz'],e:'ต้อง fs > 2·fmax = 2 kHz (มากกว่า ไม่ใช่เท่ากับ) ในทางปฏิบัติเผื่อเพิ่ม'},
- {d:2,q:'Aliasing คืออะไร?',c:['ความถี่สูงถูก "พับ" มาเป็นความถี่ต่ำที่ไม่มีจริง เมื่อสุ่มช้าเกินไป','สัญญาณขาดหายไปเพราะแรงดันต่ำ','การปัดเศษตอน quantization','การที่ ADC ร้อนจัด'],e:'เมื่อ fs ≤ 2f สัญญาณจะถูกมองเป็นความถี่ต่ำปลอม แยกจากของจริงไม่ได้อีก (ลองฟังใน Sound Lab)'},
- {d:2,q:'วิธีป้องกัน Aliasing ที่ถูกต้องคือข้อใด?',c:['ใส่ low-pass filter ก่อนเข้า ADC (anti-aliasing filter)','ใส่ low-pass filter หลังออกจาก ADC','เพิ่มจำนวนบิตของ ADC','ลดแรงดัน Vref'],e:'ต้องตัดความถี่เกิน fs/2 ทิ้ง "ก่อน" สุ่ม เพราะหลังสุ่มแล้วแยก alias ออกไม่ได้'},
- {d:2,q:'Arduino Uno (5 V, 10 บิต) อ่าน analogRead ได้ 512 ประมาณกี่โวลต์?',c:['2.5 V','5 V','1.0 V','0.5 V'],e:'V ≈ 512 × 5 / 1024 ≈ 2.5 V (ครึ่งหนึ่งของ full-scale)'},
- {d:2,q:'ESP32 อ่านค่า raw 12 บิตได้ 2048 (สมมติ full-scale 3.3 V แบบอุดมคติ) แรงดันประมาณเท่าไร?',c:['1.65 V','3.3 V','2.048 V','0.8 V'],e:'2048 / 4096 = ครึ่งหนึ่ง → 1.65 V (ของจริงไม่เป็นเส้นตรงเป๊ะ จึงควร calibrate)'},
- {d:2,q:'บน ESP32 ขา ADC กลุ่มใด "อ่านไม่ได้" เมื่อ Wi-Fi ทำงาน?',c:['ADC2','ADC1','ทุกขา','ขา GPIO32–39'],e:'ADC2 ใช้ร่วมกับ Wi-Fi driver และ Wi-Fi มีลำดับความสำคัญสูงกว่า → งาน AIoT ที่ใช้ Wi-Fi ให้ใช้ขา ADC1'},
- {d:2,q:'SAR ADC ขนาด N บิต ใช้กี่รอบการเปรียบเทียบต่อ 1 การแปลง?',c:['N รอบ','1 รอบ','2^N รอบ','2N รอบ'],e:'SAR ทำ binary search ทีละบิต จากบิตสูงสุดลงมา จึงใช้ N รอบ (8 บิต = 8 รอบ)'},
- {d:2,q:'ADC ชนิดใดแลกความเร็วกับความละเอียดสูงมาก (16–24+ บิต) โดยใช้ oversampling และ digital filter?',c:['Sigma-Delta','Flash','Pipeline','SAR'],e:'Sigma-Delta สุ่มเร็วมากด้วย 1 บิต แล้วกรองเป็นค่าละเอียด เหมาะกับเครื่องชั่ง/เซ็นเซอร์แม่นยำ'},
- {d:2,q:'DAC 8 บิต Vref = 3.3 V ใส่โค้ด 128 จะได้แรงดันประมาณเท่าไร?',c:['1.65 V','3.3 V','0.128 V','0.825 V'],e:'Vout = 3.3 × 128 / 256 = 1.65 V'},
- {d:2,q:'ESP32 รุ่นดั้งเดิมมี DAC กี่ช่อง กี่บิต และอยู่ที่ขาไหน?',c:['2 ช่อง, 8 บิต, GPIO25 และ GPIO26','1 ช่อง, 12 บิต, GPIO34','4 ช่อง, 10 บิต, GPIO0–3','ไม่มี DAC เลย'],e:'ESP32 รุ่นดั้งเดิมมี DAC 8 บิต 2 ช่อง ที่ GPIO25 และ GPIO26 (บางรุ่น เช่น ESP32-S3 ไม่มี)'},
- {d:2,q:'เพิ่มความละเอียดของ ADC ขึ้น 1 บิต (ในอุดมคติ) SQNR จะดีขึ้นประมาณเท่าไร?',c:['≈ 6 dB','≈ 1 dB','≈ 20 dB','≈ 3 dB'],e:'SQNR ≈ 6.02N + 1.76 dB → ทุก 1 บิตเพิ่มประมาณ 6 dB'},
- {d:2,q:'ความคลาดเคลื่อนจากการ quantization ของ ADC ในอุดมคติมีค่าสูงสุดประมาณเท่าไร?',c:['±½ LSB','±2 LSB','±10 LSB','0 (ไม่มี error)'],e:'ค่าจริงถูกปัดไปยังระดับที่ใกล้ที่สุด จึงคลาดเคลื่อนไม่เกินครึ่งขั้น (±½ LSB)'},
- {d:2,q:'ตามเอกสาร Espressif วิธีลด noise ของ ADC บน ESP32 ที่แนะนำคือข้อใด?',c:['ใส่ตัวเก็บประจุ 0.1 µF ที่ขาอินพุต และทำ multisampling','ต่อสายอินพุตให้ยาวขึ้น','ลดความถี่ CPU เหลือ 1 MHz','เพิ่ม Vref เป็น 12 V'],e:'ADC ของ ESP32 ไวต่อ noise → ตัวเก็บประจุ 0.1 µF + เฉลี่ยหลายตัวอย่าง (multisampling) ช่วยได้มาก'},
- {d:2,q:'ภายใน SAR ADC ใช้วงจรใดสร้างแรงดันทดลองเพื่อเทียบกับ Vin ในแต่ละรอบ?',c:['DAC ภายใน (ร่วมกับ comparator)','ตัวต้านทานแปรผัน','คริสตัล','Op-amp แบบ buffer'],e:'SAR ใช้ DAC ภายในสร้างแรงดันทดลอง แล้วใช้ comparator เทียบกับ Vin — ADC กับ DAC เกี่ยวข้องกันลึกกว่าที่คิด!'},
- {d:3,q:'สุ่มสัญญาณ 90 Hz ด้วย fs = 100 Hz ผลลัพธ์ที่ MCU เห็นจะเป็นความถี่ใด?',c:['10 Hz','90 Hz','190 Hz','45 Hz'],e:'f_alias = |f − k·fs| = |90 − 1×100| = 10 Hz (สัญญาณ 90 Hz แต่งตัวเป็น 10 Hz)'},
- {d:3,q:'ADC 16 บิตในอุดมคติ มี SQNR ประมาณเท่าไร? (สูตร 6.02N + 1.76)',c:['≈ 98 dB','≈ 48 dB','≈ 72 dB','≈ 144 dB'],e:'6.02 × 16 + 1.76 ≈ 98.1 dB (ซีดีจริงได้ราว 95 dB เพราะมี noise)'},
- {d:3,q:'ต้องการเพิ่มความละเอียดอีก 1 บิตด้วย oversampling + เฉลี่ย ต้องสุ่มเพิ่มกี่เท่า?',c:['4 เท่า','2 เท่า','8 เท่า','1.5 เท่า'],e:'ทุกการเพิ่ม OSR 2 เท่าได้ SNR +3 dB → 4 เท่าได้ +6 dB ≈ 1 บิต (ต้องมี noise พอเหมาะกระจายตัว)'}
+ {d:1,q:'เซ็นเซอร์อุณหภูมิแบบอนาล็อกให้แรงดันต่อเนื่องออกมา ไมโครคอนโทรลเลอร์จะอ่านค่าได้ต้องผ่านวงจรอะไรก่อน?',c:['ADC','DAC','Flip-flop','Voltage regulator'],e:'ADC (Analog-to-Digital Converter) แปลงแรงดันต่อเนื่องให้เป็นตัวเลขที่ไมโครคอนโทรลเลอร์เข้าใจ'},
+ {d:1,q:'ลำดับขั้นตอนของ ADC ข้อใดถูกต้อง?',c:['สุ่ม → ปัดเป็นระดับ → เข้ารหัสเป็นเลข 0/1','เข้ารหัส → สุ่ม → ปัดเป็นระดับ','ปัดเป็นระดับ → เข้ารหัส → สุ่ม','สุ่ม → เข้ารหัส → ปัดเป็นระดับ'],e:'จำง่าย ๆ: สุ่ม (Sampling) → ปัด (Quantization) → เข้ารหัส (Encoding)'},
+ {d:1,q:'ADC ขนาด 10 บิต แบ่งแรงดันได้กี่ระดับ?',c:['1,024','10','100','512'],e:'จำนวนระดับ = 2 ยกกำลังจำนวนบิต = 2¹⁰ = 1,024 ระดับ (ค่า 0–1023 แบบ Arduino Uno)'},
+ {d:1,q:'DAC ทำหน้าที่อะไร?',c:['แปลงตัวเลข (ดิจิทัล) เป็นแรงดัน (อนาล็อก)','แปลงแรงดันเป็นตัวเลข','ทำให้สัญญาณดังขึ้น','เก็บข้อมูลลงหน่วยความจำ'],e:'DAC ทำงานตรงข้ามกับ ADC เช่น ใช้ส่งเสียงออกลำโพง หรือคุมความสว่างไฟ'},
+ {d:1,q:'ADC ที่มีจำนวนบิตมากขึ้น จะเป็นอย่างไร?',c:['ละเอียดขึ้น เพราะแบ่งระดับได้มากขึ้น','เร็วขึ้นเสมอ','ประหยัดไฟขึ้น','ไม่มีความแตกต่าง'],e:'บิตมาก = ระดับมาก = ค่าที่อ่านได้ใกล้ความจริงมากขึ้น (ลองเลื่อนแถบบิตในสไลด์ ADC)'},
+ {d:1,q:'ถ้าบอร์ดไม่มี DAC ในตัว จะสร้างแรงดันอนาล็อกได้ด้วยวิธีใดที่นิยมที่สุด?',c:['PWM แล้วผ่านตัวกรอง RC','ต่อ LED ตรง ๆ','เพิ่มความถี่ clock','ใช้ตัวต้านทานตัวเดียว'],e:'PWM เปิดปิดเร็ว ๆ แล้วตัวกรอง RC เฉลี่ยให้เป็นแรงดันเรียบ ๆ'},
+ {d:1,q:'เพลงในแผ่นซีดีใช้อัตราสุ่ม (sampling rate) เท่าไร? (หูคนได้ยินสูงสุดราว 20 kHz)',c:['44.1 kHz','8 kHz','16 kHz','1 MHz'],e:'44.1 kHz มากกว่า 2 เท่าของ 20 kHz ตามกฎ Nyquist'},
+ {d:2,q:'สัญญาณความถี่ 1 kHz ต้องสุ่มด้วยอัตราอย่างน้อยเท่าไร?',c:['มากกว่า 2 kHz','500 Hz','1 kHz พอดี','มากกว่า 100 Hz'],e:'กฎ Nyquist: สุ่มเร็วกว่าความถี่สูงสุด "เกิน 2 เท่า" (มากกว่า ไม่ใช่เท่ากับ)'},
+ {d:2,q:'Aliasing คืออะไร?',c:['เสียงหรือสัญญาณสูงถูกมองเป็นความถี่ต่ำปลอม เพราะสุ่มช้าเกินไป','สัญญาณขาดหายเพราะแรงดันต่ำ','การปัดเศษตอนแปลงเป็นระดับ','ADC ร้อนจัด'],e:'เหมือนล้อรถในหนังที่ดูหมุนย้อนกลับ ภาพถูก "สุ่ม" ช้าไปเลยตีความผิด (ลองฟังใน Sound Lab)'},
+ {d:2,q:'วิธีป้องกัน Aliasing ที่ถูกต้องคือข้อใด?',c:['ใส่ฟิลเตอร์ตัดความถี่สูงก่อนเข้า ADC','ใส่ฟิลเตอร์หลังออกจาก ADC','เพิ่มจำนวนบิตของ ADC','ลดแรงดันอ้างอิง'],e:'ต้องตัดความถี่สูงทิ้ง "ก่อน" สุ่ม เพราะสุ่มไปแล้วแยกของปลอมออกไม่ได้'},
+ {d:2,q:'Arduino Uno (5 V, 10 บิต) อ่าน analogRead ได้ 512 ประมาณกี่โวลต์?',c:['2.5 V','5 V','1.0 V','0.5 V'],e:'512 จาก 1024 คือครึ่งหนึ่ง → ครึ่งของ 5 V = 2.5 V'},
+ {d:2,q:'ADC 12 บิต แบ่งแรงดันได้กี่ระดับ?',c:['4,096','1,200','2,048','12'],e:'2¹² = 4,096 ระดับ (ESP32 ใช้ 12 บิต)'},
+ {d:2,q:'ESP32 อ่านค่าได้ 2048 จาก 4096 (เต็มสเกล 3.3 V) แรงดันประมาณเท่าไร?',c:['1.65 V','3.3 V','2.048 V','0.8 V'],e:'2048 คือครึ่งหนึ่งของ 4096 → 1.65 V (ของจริงไม่เป๊ะ ควรปรับเทียบค่า)'},
+ {d:2,q:'บน ESP32 ขา ADC กลุ่มใด "ใช้ไม่ได้" เมื่อเปิด Wi-Fi?',c:['ADC2','ADC1','ทุกขา','ขา GPIO32–39'],e:'ADC2 ต้องใช้ร่วมกับ Wi-Fi และ Wi-Fi ได้สิทธิ์ก่อน → งาน AIoT ที่ใช้ Wi-Fi ให้ใช้ขา ADC1'},
+ {d:2,q:'DAC 8 บิต (256 ระดับ) Vref = 3.3 V ใส่ค่า 128 จะได้แรงดันประมาณเท่าไร?',c:['1.65 V','3.3 V','0.128 V','0.825 V'],e:'128 คือครึ่งหนึ่งของ 256 → ครึ่งของ 3.3 V = 1.65 V'},
+ {d:2,q:'ตามเอกสาร Espressif วิธีลดสัญญาณรบกวนของ ADC บน ESP32 ที่แนะนำคือข้อใด?',c:['ใส่ตัวเก็บประจุ 0.1 µF ที่ขาอินพุต และอ่านหลายครั้งแล้วเฉลี่ย','ต่อสายอินพุตให้ยาวขึ้น','ลดความถี่ CPU เหลือ 1 MHz','เพิ่มแรงดันเป็น 12 V'],e:'ADC ของ ESP32 ไวต่อสัญญาณรบกวน → ตัวเก็บประจุ + เฉลี่ยหลายครั้งช่วยได้มาก'},
+ {d:3,q:'สุ่มสัญญาณ 90 Hz ด้วยอัตราสุ่ม 100 Hz ไมโครคอนโทรลเลอร์จะ "เห็น" เป็นความถี่ใด?',c:['10 Hz','90 Hz','190 Hz','45 Hz'],e:'สุ่มช้าไป จึงเห็นเป็นความถี่ปลอมที่ห่างกัน |90 − 100| = 10 Hz'},
+ {d:3,q:'เสียง 6 kHz ถูกสุ่มด้วยอัตรา 8 kHz (Nyquist = 4 kHz) จะได้ยินเป็นเสียงประมาณเท่าไร?',c:['2 kHz','6 kHz','14 kHz','4 kHz'],e:'6 kHz เกินขีด 4 kHz จึงวกกลับมาเป็น |6 − 8| = 2 kHz'},
+ {d:3,q:'ลดความละเอียด ADC จาก 10 บิต เหลือ 8 บิต ระดับที่แบ่งได้จะเหลือเท่าไร?',c:['เหลือ 1 ใน 4','เหลือครึ่งหนึ่ง','เหลือ 1 ใน 8','เท่าเดิม'],e:'ทุกบิตที่หายไป ระดับลดลงครึ่งหนึ่ง ลด 2 บิตจึงเหลือ 1 ใน 4 (1,024 → 256)'}
 ];
 const TIME = [0, 15, 20, 25];
 const RANKS = [
