@@ -292,6 +292,27 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
 .sg4 .stat span{font-size:.7em;line-height:1.2;display:block}
 #s-adc .ctl{margin-top:.55em}
 
+/* ───── เมนูหน้าแรก + หน้าต่างเนื้อหา ───── */
+.menu{display:flex;flex-wrap:wrap;gap:8px;margin-top:1em;max-width:900px}
+.more{background:none;border:0;padding:0;color:var(--cyan);font:600 .8rem var(--disp);cursor:pointer;white-space:nowrap}
+.more:hover{text-decoration:underline}
+.card h3 .more{float:right;margin-left:.6em}
+.clk{cursor:pointer}
+.clk .more{display:block;margin-top:.5em}
+.rowclk{cursor:pointer;border-radius:12px;padding:.05em .5em;margin:0 -.5em;transition:background .25s}
+.rowclk:hover{background:var(--glass2)}
+.clk:focus-visible,.rowclk:focus-visible,.more:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+#modal{position:fixed;inset:0;z-index:35;display:none;grid-template-columns:minmax(0,760px);justify-content:center;align-content:center;padding:16px;background:rgba(0,0,0,.66);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#modal.on{display:grid}
+#modal .box{max-height:88vh;overflow:auto;background:var(--bg);border:1px solid var(--cyan);border-radius:22px;padding:clamp(16px,2.6vw,30px);box-shadow:var(--shadow),0 0 50px color-mix(in srgb,var(--cyan) 25%,transparent);animation:rise .25s}
+#modal h2{font-size:clamp(1.3rem,3vw,2rem);margin:0 0 .5em;clear:none}
+#modal pre{font-size:.82em}
+#mClose{float:right;margin:0 0 .5em 1em}
+
+/* จอเตี้ย (โน้ตบุ๊ก/โปรเจกเตอร์): ย่อเนื้อหาให้พอดีหน้า */
+@media (max-height:820px) and (min-width:900px){ #deck .slide > .wrap{zoom:.86} }
+@media (max-height:700px) and (min-width:900px){ #deck .slide > .wrap{zoom:.76} }
+
 </style>
 </head>
 <body>
@@ -314,7 +335,15 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
       <div class="person"><div class="av">ช</div><div><b>นาย ชิณวัฒน์ ตันติสิทธิพร</b><span>6604101320</span></div></div>
       <div class="person"><div class="av">ณ</div><div><b>นาย ณัฐธชนพงศ์ ไชยศรี</b><span>6604101328</span></div></div>
     </div>
-    <p class="hint">ขยับเมาส์เพื่อบังคับคลื่น · <kbd>→</kbd> ไปต่อ · <kbd>F</kbd> เต็มจอ · <kbd>N</kbd> โน้ตผู้พูด · <kbd>R</kbd> อ้างอิง · <kbd>T</kbd> สว่าง/มืด</p>
+    <div class="menu" role="navigation" aria-label="เมนูหัวข้อ">
+      <button class="btn" data-goto="s-pipeline">🌍 ภาพรวม</button>
+      <button class="btn" data-goto="s-adc">⚙ ADC</button>
+      <button class="btn" data-goto="s-nyquist">📈 Nyquist</button>
+      <button class="btn" data-goto="s-dac">〰️ DAC</button>
+      <button class="btn" data-goto="s-board">🔧 บอร์ดจริง</button>
+      <button class="btn primary" data-goto="s-quiz">🎮 เกม</button>
+    </div>
+    <p class="hint">กดหัวข้อหรือการ์ดเพื่อดูเนื้อหา · ขยับเมาส์เพื่อบังคับคลื่น · <kbd>→</kbd> ไปต่อ · <kbd>F</kbd> เต็มจอ · <kbd>N</kbd> โน้ตผู้พูด · <kbd>R</kbd> อ้างอิง · <kbd>T</kbd> สว่าง/มืด</p>
   </div>
 </section>
 
@@ -327,9 +356,9 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
     <canvas id="cPipe" class="cv scope" style="height:clamp(200px,34vh,300px)" role="img" aria-label="แอนิเมชันสัญญาณแอนะล็อกเข้า ADC กลายเป็นบิต ผ่าน CPU และ AI ออก DAC กลับเป็นแอนะล็อก"></canvas>
     <p class="muted" style="margin:.6em 0 .2em"><b>ADC</b> แปลงสัญญาณจากเซนเซอร์ให้ CPU เข้าใจ (ขาเข้า) · <b>DAC</b> แปลงคำสั่งจาก CPU เป็นแรงดันไปคุมอุปกรณ์ เช่น มอเตอร์ (ขาออก)</p>
     <div class="grid g3">
-      <div class="card"><div class="ico">🌡️</div><h3>วัดอุณหภูมิ</h3><p class="muted small">LM35 ให้ 10 mV ต่อ 1 °C → 25 °C = 0.25 V → <b>ADC</b> ของ Uno อ่านได้ราว <b>51</b> → CPU สั่งพัดลม</p></div>
-      <div class="card"><div class="ico">💧</div><h3>วัดความชื้น</h3><p class="muted small">เซนเซอร์ความชื้นดินแบบแอนะล็อก → <b>ADC</b> → CPU เห็นว่าดินแห้ง → เปิดปั๊มน้ำ</p></div>
-      <div class="card"><div class="ico">☀️</div><h3>วัดความสว่าง</h3><p class="muted small">LDR + ตัวต้านทาน → แรงดันเปลี่ยนตามแสง → <b>ADC</b> → CPU ปรับความสว่างไฟ</p></div>
+      <div class="card clk" role="button" tabindex="0" data-detail="temp" aria-haspopup="dialog"><div class="ico">🌡️</div><h3>วัดอุณหภูมิ</h3><p class="muted small">LM35 ให้ 10 mV ต่อ 1 °C → 25 °C = 0.25 V → <b>ADC</b> ของ Uno อ่านได้ราว <b>51</b> → CPU สั่งพัดลม</p><span class="more">ดูวิธีทำและโค้ด ›</span></div>
+      <div class="card clk" role="button" tabindex="0" data-detail="humid" aria-haspopup="dialog"><div class="ico">💧</div><h3>วัดความชื้น</h3><p class="muted small">เซนเซอร์ความชื้นดินแบบแอนะล็อก → <b>ADC</b> → CPU เห็นว่าดินแห้ง → เปิดปั๊มน้ำ</p><span class="more">ดูวิธีทำและโค้ด ›</span></div>
+      <div class="card clk" role="button" tabindex="0" data-detail="light" aria-haspopup="dialog"><div class="ico">☀️</div><h3>วัดความสว่าง</h3><p class="muted small">LDR + ตัวต้านทาน → แรงดันเปลี่ยนตามแสง → <b>ADC</b> → CPU ปรับความสว่างไฟ</p><span class="more">ดูวิธีทำและโค้ด ›</span></div>
     </div>
   </div>
 </section>
@@ -346,9 +375,9 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
     </div>
     <div id="tabSteps" class="tabpanel">
       <div class="grid g3" id="stepCards" style="margin-bottom:.8em">
-        <div class="card" data-layer="1" role="button" tabindex="0" style="cursor:pointer;padding:.7em 1em"><h3 style="margin:0"><span class="num">1</span>Sampling</h3><p class="muted small" style="margin:.2em 0 0"><b>สุ่ม</b>ดูค่าแรงดันเป็นช่วง ๆ เหมือนถ่ายภาพทีละเฟรม</p></div>
-        <div class="card" data-layer="2" role="button" tabindex="0" style="cursor:pointer;padding:.7em 1em"><h3 style="margin:0"><span class="num">2</span>Quantization</h3><p class="muted small" style="margin:.2em 0 0"><b>ปัด</b>ค่าให้เป็นขั้นที่ใกล้ที่สุด เหมือนปัดเศษ</p></div>
-        <div class="card" data-layer="3" role="button" tabindex="0" style="cursor:pointer;padding:.7em 1em"><h3 style="margin:0"><span class="num">3</span>Encoding</h3><p class="muted small" style="margin:.2em 0 0"><b>แปลงเป็นเลข 0/1</b> ส่งให้ไมโครคอนโทรลเลอร์</p></div>
+        <div class="card" data-layer="1" role="button" tabindex="0" style="cursor:pointer;padding:.7em 1em"><h3 style="margin:0"><span class="num">1</span>Sampling <button type="button" class="more" data-detail="s1" aria-haspopup="dialog">อ่านเพิ่ม ›</button></h3><p class="muted small" style="margin:.2em 0 0"><b>สุ่ม</b>ดูค่าแรงดันเป็นช่วง ๆ เหมือนถ่ายภาพทีละเฟรม</p></div>
+        <div class="card" data-layer="2" role="button" tabindex="0" style="cursor:pointer;padding:.7em 1em"><h3 style="margin:0"><span class="num">2</span>Quantization <button type="button" class="more" data-detail="s2" aria-haspopup="dialog">อ่านเพิ่ม ›</button></h3><p class="muted small" style="margin:.2em 0 0"><b>ปัด</b>ค่าให้เป็นขั้นที่ใกล้ที่สุด เหมือนปัดเศษ</p></div>
+        <div class="card" data-layer="3" role="button" tabindex="0" style="cursor:pointer;padding:.7em 1em"><h3 style="margin:0"><span class="num">3</span>Encoding <button type="button" class="more" data-detail="s3" aria-haspopup="dialog">อ่านเพิ่ม ›</button></h3><p class="muted small" style="margin:.2em 0 0"><b>แปลงเป็นเลข 0/1</b> ส่งให้ไมโครคอนโทรลเลอร์</p></div>
       </div>
       <div class="grid g2" style="align-items:start">
         <div>
@@ -395,7 +424,7 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
     <p class="kicker"><i></i>Sampling theory</p>
     <h2>Nyquist: ต้องสุ่ม <span class="grad">เร็วกว่า 2 เท่า</span> ไม่งั้นเสียง<span class="grad">เพี้ยน</span></h2>
     <span class="formula">อัตราสุ่ม &gt; 2 × ความถี่สูงสุดของสัญญาณ</span>
-    <p class="muted small" style="margin:.2em 0 .4em">เหมือนล้อรถในหนังที่ดูหมุนย้อนกลับ เพราะกล้องถ่ายภาพไม่ถี่พอ</p>
+    <p class="muted small" style="margin:.2em 0 .4em">เหมือนล้อรถในหนังที่ดูหมุนย้อนกลับ เพราะกล้องถ่ายภาพไม่ถี่พอ &nbsp;<button type="button" class="more" data-detail="nyq" aria-haspopup="dialog">อ่านเพิ่ม ›</button></p>
     <div class="seg" data-tabs style="margin:.3em 0 .8em">
       <button class="btn" data-tab="tabAlias" aria-pressed="true">📈 ดู Aliasing</button>
       <button class="btn" data-tab="tabSound" aria-pressed="false">🔊 ฟังเสียง</button>
@@ -455,9 +484,9 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
           <div class="stat"><b id="dacVolt">1.65 V</b><span>แรงดันที่ออกจาก DAC</span></div>
         </div>
         <ul class="clean small">
-          <li>ขา DAC จ่ายกระแสได้น้อย ต่อมอเตอร์ตรง ๆ ไม่ได้ → ต้องมี<b>วงจรขับ (motor driver)</b></li>
-          <li>งานคุมมอเตอร์นิยมใช้ <b>PWM</b> (เปิดปิดเร็ว ๆ) กับวงจรขับ</li>
-          <li>บอร์ดไม่มี DAC แต่อยากได้แรงดันเรียบ → <b>PWM + ตัวกรอง RC</b></li>
+          <li>ขา DAC จ่ายกระแสได้น้อย ต่อมอเตอร์ตรง ๆ ไม่ได้ → ต้องมี<b>วงจรขับ (motor driver)</b> <button type="button" class="more" data-detail="drive" aria-haspopup="dialog">อ่านเพิ่ม ›</button></li>
+          <li>งานคุมมอเตอร์นิยมใช้ <b>PWM</b> (เปิดปิดเร็ว ๆ) กับวงจรขับ <button type="button" class="more" data-detail="pwm" aria-haspopup="dialog">อ่านเพิ่ม ›</button></li>
+          <li>บอร์ดไม่มี DAC แต่อยากได้แรงดันเรียบ → <b>PWM + ตัวกรอง RC</b> <button type="button" class="more" data-detail="rc" aria-haspopup="dialog">อ่านเพิ่ม ›</button></li>
           <li>เอาต์พุตของ DAC เป็นขั้นบันได → ผ่าน<b>ฟิลเตอร์</b>ให้เรียบ</li>
         </ul>
       </div>
@@ -472,14 +501,17 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
     <p class="kicker"><i></i>Types · Real boards</p>
     <h2>ADC หลายแบบ และ <span class="grad">ที่ต้องระวังบน ESP32</span></h2>
     <div class="grid g2">
-      <div class="card"><h3>🎯 ADC มีหลายแบบ</h3>
+      <div class="card"><h3>🎯 ADC มีหลายแบบ <span class="muted small">(กดดูได้)</span></h3>
+        <div class="rowclk" role="button" tabindex="0" data-detail="flash" aria-haspopup="dialog" title="คลิกดูวิธีทำงาน">
         <div class="meter"><em>Flash</em><div><i style="--v:100%"></i></div></div>
-        <p class="small muted" style="margin:0 0 .4em">เร็วสุด แต่ละเอียดน้อย และกินไฟมาก</p>
+        <p class="small muted" style="margin:0 0 .4em">เร็วสุด แต่ละเอียดน้อย และกินไฟมาก</p></div>
+        <div class="rowclk" role="button" tabindex="0" data-detail="sar" aria-haspopup="dialog" title="คลิกดูวิธีทำงาน">
         <div class="meter am" style="--x:1"><em><b style="color:var(--amber)">SAR ★</b></em><div><i style="--v:60%"></i></div></div>
-        <p class="small muted" style="margin:0 0 .4em">สมดุลที่สุด · <b>ใช้ใน ESP32 และ Arduino</b></p>
+        <p class="small muted" style="margin:0 0 .4em">สมดุลที่สุด · <b>ใช้ใน ESP32 และ Arduino</b></p></div>
+        <div class="rowclk" role="button" tabindex="0" data-detail="sd" aria-haspopup="dialog" title="คลิกดูวิธีทำงาน">
         <div class="meter"><em>Sigma-Delta</em><div><i style="--v:100%;width:100%"></i></div></div>
-        <p class="small muted" style="margin:0">ละเอียดมาก แต่ช้า เช่น เครื่องชั่งดิจิทัล</p></div>
-      <div class="card hl"><h3>⚠ Uno vs ESP32</h3>
+        <p class="small muted" style="margin:0">ละเอียดมาก แต่ช้า เช่น เครื่องชั่งดิจิทัล</p></div></div>
+      <div class="card hl"><h3>⚠ Uno vs ESP32 <button type="button" class="more" data-detail="board" aria-haspopup="dialog">อ่านเพิ่ม ›</button></h3>
         <div class="sg" style="margin-bottom:.5em">
           <div class="stat"><b style="font-size:1.1em"><i data-count="10">10</i> บิต</b><span>Uno · 0–5 V</span></div>
           <div class="stat"><b style="font-size:1.1em"><i data-count="12">12</i> บิต</b><span>ESP32 · ~3.3 V</span></div>
@@ -522,7 +554,86 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
   </ul>
   <p class="muted small" style="margin:.4em 0 0">ตัวเลขของ ESP32 อ้างอิงเอกสาร ESP-IDF รุ่นที่ระบุ เวอร์ชันใหม่อาจต่างไป ควรตรวจเอกสารของบอร์ดจริง</p>
 </div>
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="box">
+    <button type="button" id="mClose" class="btn" aria-label="ปิด (Esc)">✕ ปิด</button>
+    <div id="mBody"></div>
+  </div>
+</div>
+<template id="d-temp"><h2 id="mTitle">🌡️ วัดอุณหภูมิด้วย LM35</h2>
+<p><b>เส้นทางสัญญาณ:</b> อุณหภูมิ → LM35 → แรงดัน → ADC → CPU → พัดลม</p>
+<ul class="clean"><li>LM35 ให้แรงดัน <b>10 mV ต่อ 1 °C</b></li><li>25 °C → 0.25 V → Arduino Uno อ่านได้ราว <b>51</b></li><li>แปลงกลับ: 51 × 5 ÷ 1024 = 0.249 V → ประมาณ <b>24.9 °C</b></li></ul>
+<pre>int raw    = analogRead(A0);        // 0–1023
+float volt = raw * 5.0 / 1024.0;    // เป็นโวลต์
+float temp = volt * 100.0;          // 10 mV = 1 °C</pre>
+<p class="muted small">โค้ดตัวอย่างสำหรับ Arduino Uno (5 V, 10 บิต)</p>
+</template>
+<template id="d-humid"><h2 id="mTitle">💧 วัดความชื้นดิน</h2>
+<p><b>เส้นทางสัญญาณ:</b> ดิน → เซนเซอร์ → แรงดัน → ADC → CPU → รีเลย์ → ปั๊มน้ำ</p>
+<ul class="clean"><li>ค่าที่อ่านได้ไม่ใช่ % ความชื้นทันที ต้อง<b>ลองวัดดินแห้งและดินเปียก</b>ก่อน แล้วตั้งจุดตัดเอง</li><li>บางรุ่นค่าสูง = แห้ง ให้ดูจากการลองจริง</li><li>ปั๊มน้ำกินกระแสมาก ต้องต่อผ่านรีเลย์หรือวงจรขับ</li></ul>
+<pre>int raw = analogRead(A0);
+bool dry = raw > 600;               // 600 = ค่าสมมติ ต้องปรับเอง
+digitalWrite(PUMP_PIN, dry ? HIGH : LOW);</pre>
+<p class="muted small">DHT11 วัดความชื้นในอากาศ และส่งค่าเป็นดิจิทัลมาให้แล้ว จึงไม่ใช้ ADC ของบอร์ด</p>
+</template>
+<template id="d-light"><h2 id="mTitle">☀️ วัดความสว่างด้วย LDR</h2>
+<p><b>เส้นทางสัญญาณ:</b> แสง → LDR → แรงดัน → ADC → CPU → หลอดไฟ</p>
+<ul class="clean"><li>LDR คือตัวต้านทานที่<b>ค่าลดลงเมื่อสว่างขึ้น</b></li><li>ต่อ LDR ระหว่าง 5 V กับขา A0 และต่อตัวต้านทาน 10 kΩ จาก A0 ลง GND</li><li>ยิ่งสว่าง แรงดันที่ A0 ยิ่งสูง → CPU หรี่ไฟลง</li></ul>
+<pre>int light = analogRead(A0);                    // 0–1023
+int power = map(light, 0, 1023, 255, 0);       // สว่างมาก = หรี่ไฟ
+analogWrite(9, power);                         // ออกเป็น PWM</pre>
+</template>
+<template id="d-s1"><h2 id="mTitle">① Sampling — สุ่มดูค่า</h2>
+<p>ADC ไม่ได้ดูสัญญาณตลอดเวลา แต่<b>ดูเป็นช่วง ๆ เท่า ๆ กัน</b></p>
+<ul class="clean"><li>สุ่ม 1,000 ครั้งต่อวินาที (1 kHz) = ดูค่าทุก ๆ 1 มิลลิวินาที</li><li>สุ่มถี่ขึ้น เห็นรูปสัญญาณครบขึ้น แต่ข้อมูลก็เยอะขึ้น</li><li>กฎที่ต้องจำ: สุ่มให้มากกว่า 2 เท่าของความถี่สูงสุด</li></ul>
+</template>
+<template id="d-s2"><h2 id="mTitle">② Quantization — ปัดเป็นขั้น</h2>
+<p>ตัวอย่าง: ADC <b>3 บิต</b> ช่วง 0–3.3 V</p>
+<ul class="clean"><li>จำนวนระดับ = 2³ = <b>8 ระดับ</b></li><li>ขั้นละ 3.3 ÷ 8 = <b>0.4125 V</b></li><li>วัดได้ 1.00 V → 1.00 ÷ 0.4125 = 2.42 → ปัดเป็นขั้นที่ <b>2</b></li><li>ขั้นที่ 2 = 0.825 V จึงพลาดไป 0.175 V</li></ul>
+<p class="muted small">เพิ่มจำนวนบิต ขั้นจะเล็กลง ความผิดพลาดก็น้อยลง</p>
+</template>
+<template id="d-s3"><h2 id="mTitle">③ Encoding — แปลงเป็นเลข 0/1</h2>
+<p>นำหมายเลขขั้นมาเขียนเป็น<b>เลขฐานสอง</b></p>
+<ul class="clean"><li>ขั้นที่ 2 ของ ADC 3 บิต → <b>010</b></li><li>ขั้นสูงสุดของ 3 บิต คือ 7 → <b>111</b></li><li>ADC 10 บิต ให้เลข 0–1023 · 12 บิต ให้เลข 0–4095</li></ul>
+</template>
+<template id="d-nyq"><h2 id="mTitle">📈 Nyquist และ Aliasing</h2>
+<span class="formula">อัตราสุ่ม &gt; 2 × ความถี่สูงสุด</span>
+<ul class="clean"><li>หูคนได้ยินสูงสุดราว 20 kHz จึงใช้อัตราสุ่ม <b>44.1 kHz</b> ในแผ่นซีดี</li><li>สุ่ม 100 Hz แต่สัญญาณ 90 Hz → จะเห็นเป็น <b>10 Hz</b> ซึ่งไม่มีจริง</li><li>สุ่มไปแล้วแยกของปลอมไม่ออก จึงต้องใส่<b>ฟิลเตอร์ก่อนเข้า ADC</b></li></ul>
+</template>
+<template id="d-drive"><h2 id="mTitle">⚙ วงจรขับมอเตอร์ (Motor driver)</h2>
+<p>ขาของไมโครคอนโทรลเลอร์ใช้ส่ง<b>สัญญาณสั่ง</b> ไม่ใช่จ่ายกำลังให้มอเตอร์</p>
+<ul class="clean"><li><b>เส้นทาง:</b> CPU → สัญญาณ → วงจรขับ → มอเตอร์</li><li>วงจรขับรับไฟจากแหล่งจ่ายแยก แล้วปล่อยให้มอเตอร์ตามสัญญาณสั่ง</li><li>ตัวอย่าง: โมดูล L298N หรือทรานซิสเตอร์คู่กับไดโอดป้องกันไฟย้อน</li><li>ต่อมอเตอร์เข้าขาตรง ๆ อาจทำให้บอร์ดเสียหาย</li></ul>
+</template>
+<template id="d-pwm"><h2 id="mTitle">⎍ PWM — เปิดปิดเร็ว ๆ</h2>
+<p>PWM ปล่อยไฟแบบ <b>เปิดกับปิด</b> สลับกันเร็วมาก ค่าเฉลี่ยขึ้นกับสัดส่วนเวลาที่เปิด</p>
+<ul class="clean"><li>เปิดครึ่งหนึ่งของเวลา (50%) บนบอร์ด 5 V → เฉลี่ยราว <b>2.5 V</b></li><li>ใช้คุมความเร็วมอเตอร์ (ผ่านวงจรขับ) และความสว่าง LED</li></ul>
+<pre>analogWrite(9, 128);   // Arduino Uno: 128/255 ≈ 50%</pre>
+<p class="muted small">ชื่อคำสั่งคือ analogWrite แต่บน Uno สิ่งที่ออกมาคือ PWM ไม่ใช่ DAC</p>
+</template>
+<template id="d-rc"><h2 id="mTitle">〰️ ตัวกรอง RC และ DAC จริง</h2>
+<ul class="clean"><li><b>ตัวกรอง RC:</b> ตัวต้านทานต่ออนุกรม + ตัวเก็บประจุลง GND ช่วยเกลี่ย PWM ให้เป็นแรงดันเรียบ</li><li>ฟิลเตอร์เดียวกันช่วยทำให้ขั้นบันไดของ DAC เรียบขึ้น</li><li><b>DAC จริง</b> ปล่อยแรงดันตามค่าที่สั่งเลย เช่น ESP32 รุ่นเดิม ขา GPIO25 และ 26</li></ul>
+<pre>dacWrite(25, 128);     // ESP32 รุ่นเดิม: ราว 1.65 V</pre>
+</template>
+<template id="d-flash"><h2 id="mTitle">⚡ Flash ADC</h2>
+<p><b>เทียบทุกระดับพร้อมกันในครั้งเดียว</b></p>
+<ul class="clean"><li>ใช้ตัวเปรียบเทียบจำนวนมาก: N บิต ต้องใช้ 2ᴺ − 1 ตัว (8 บิต = 255 ตัว)</li><li>ข้อดี: เร็วมาก</li><li>ข้อเสีย: วงจรใหญ่ กินไฟ ทำให้ละเอียดมากได้ยาก</li><li>ใช้ใน: งานความเร็วสูง เช่น ออสซิลโลสโคป</li></ul>
+</template>
+<template id="d-sar"><h2 id="mTitle">🎯 SAR ADC</h2>
+<p><b>ทายทีละครึ่ง</b> เหมือนเกมทายตัวเลข ได้คำตอบทีละบิต</p>
+<ul class="clean"><li>หาค่า 5 ใน 0–7: มากกว่าหรือเท่ากับ 4 ไหม → ใช่ (<b>1</b>)</li><li>มากกว่าหรือเท่ากับ 6 ไหม → ไม่ (<b>0</b>)</li><li>มากกว่าหรือเท่ากับ 5 ไหม → ใช่ (<b>1</b>) → ได้ <b>101</b> = 5</li><li>สมดุลทั้งความเร็ว ความละเอียด และการกินไฟ จึงใช้ในไมโครคอนโทรลเลอร์</li></ul>
+</template>
+<template id="d-sd"><h2 id="mTitle">🎚 Sigma-Delta ADC</h2>
+<p><b>สุ่มถี่มาก ๆ แล้วเฉลี่ย</b> ให้ได้ค่าที่ละเอียด</p>
+<ul class="clean"><li>ข้อดี: ละเอียดมาก ทนสัญญาณรบกวนได้ดี</li><li>ข้อเสีย: ได้ผลลัพธ์ช้ากว่า</li><li>ใช้ใน: เครื่องชั่งดิจิทัล เครื่องมือวัด งานเสียง</li></ul>
+</template>
+<template id="d-board"><h2 id="mTitle">🔧 Arduino Uno กับ ESP32</h2>
+<ul class="clean"><li><b>Uno:</b> ADC 10 บิต ช่วง 0–5 V → ค่า 0–1023</li><li><b>ESP32:</b> ADC 12 บิต ช่วงประมาณ 0–3.3 V → ค่า 0–4095</li><li>อย่าป้อนแรงดันเกินช่วงของบอร์ด โดยเฉพาะ ESP32</li><li>ใช้ Wi-Fi บน ESP32 รุ่นเดิม ให้เลือกขา ADC1</li><li>ค่าจาก ADC ของ ESP32 แกว่งได้ ให้อ่านหลายครั้งแล้วเฉลี่ย</li></ul>
+<pre>long sum = 0;
+for (int i = 0; i < 16; i++) sum += analogRead(34);
+int value = sum / 16;</pre>
+</template>
 <nav id="nav" aria-label="ควบคุมสไลด์">
+  <button id="bHome" aria-label="กลับหน้าแรก" title="หน้าแรก (Home)">🏠</button>
   <button id="prev" aria-label="สไลด์ก่อนหน้า">◀</button>
   <button id="next" aria-label="สไลด์ถัดไป">▶</button>
   <span id="count">1 / 7</span>
@@ -1151,6 +1262,7 @@ document.addEventListener('pointermove', e => {
 document.addEventListener('fullscreenchange', () => { wake(); setTimeout(redrawNow, 150); });
 document.addEventListener('keydown', e => {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (modalOpen()){ if (e.key === 'Escape') closeDetail(); return; }
   wake();
   const tag = (e.target.tagName || '').toLowerCase();
   if (slides[cur].id === 's-quiz' && quizKey(e)){ e.preventDefault(); return; }
@@ -1170,7 +1282,7 @@ document.addEventListener('keydown', e => {
 let tx = null;
 document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
 document.addEventListener('touchend', e => {
-  if (tx === null || e.target.closest('input,canvas,#quiz,.tw,pre')){ tx = null; return; }
+  if (tx === null || modalOpen() || e.target.closest('input,canvas,#quiz,.tw,pre')){ tx = null; return; }
   const dx = e.changedTouches[0].clientX - tx; tx = null; if (Math.abs(dx) > 60) show(cur + (dx < 0 ? 1 : -1));
 }, { passive: true });
 let rz = 0; window.addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(redrawNow); });
@@ -1178,7 +1290,29 @@ let rz = 0; window.addEventListener('resize', () => { cancelAnimationFrame(rz); 
 /* ───────────── เชื่อมปุ่มต่าง ๆ ───────────── */
 document.addEventListener('input', e => { if (e.target.type === 'range') rangeFill(e.target); });
 $$('input[type=range]').forEach(r => r.addEventListener('pointerup', () => r.blur()));
-$$('[data-goto]').forEach(b => b.addEventListener('click', () => show(slides.findIndex(s => s.id === b.dataset.goto))));
+$$('[data-goto]').forEach(b => b.addEventListener('click', () => { b.blur(); show(slides.findIndex(s => s.id === b.dataset.goto)); }));
+$('#bHome').addEventListener('click', e => { e.currentTarget.blur(); show(0); });
+
+/* ───────────── หน้าต่างเนื้อหาด้านใน ───────────── */
+const modal = $('#modal'), mBody = $('#mBody');
+let mFrom = null;
+const modalOpen = () => modal.classList.contains('on');
+function openDetail(id, byMouse){
+  const t = document.getElementById('d-' + id); if (!t) return;
+  mFrom = byMouse ? null : document.activeElement;
+  if (byMouse) document.activeElement?.blur?.();
+  stepsStop(); sndStop();
+  mBody.replaceChildren(t.content.cloneNode(true));
+  modal.classList.add('on'); $('#deck').inert = $('#nav').inert = true;
+  $('.box', modal).scrollTop = 0; $('#mClose').focus({ preventScroll: true });
+}
+function closeDetail(){
+  modal.classList.remove('on'); $('#deck').inert = $('#nav').inert = false;
+  if (mFrom) mFrom.focus(); else document.activeElement?.blur?.();
+  mFrom = null;
+}
+document.addEventListener('click', e => { const d = e.target.closest('[data-detail]'); if (d) openDetail(d.dataset.detail, e.detail > 0); });
+modal.addEventListener('click', e => { if (e.target === modal || e.target.closest('#mClose')) closeDetail(); });
 ['fsSteps', 'nSteps'].forEach(id => $('#'+id).addEventListener('input', () => { if (stepTimer) stepsStop(); drawSteps(); }));
 $$('#stepCards .card').forEach(c => c.addEventListener('click', () => { stepsStop(); stepLayer = +c.dataset.layer; drawSteps(); }));
 $('#stepsPlay').addEventListener('click', stepsPlay);
