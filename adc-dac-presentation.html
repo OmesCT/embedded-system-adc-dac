@@ -293,7 +293,7 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
 #s-adc .ctl{margin-top:.55em}
 
 /* ───── เมนูหน้าแรก + หน้าต่างเนื้อหา ───── */
-.menu{display:flex;flex-wrap:wrap;gap:8px;margin-top:1em;max-width:900px}
+.menu{display:flex;flex-wrap:wrap;gap:8px;margin-top:1em;max-width:1100px}
 .more{background:none;border:0;padding:0;color:var(--cyan);font:600 .8rem var(--disp);cursor:pointer;white-space:nowrap}
 .more:hover{text-decoration:underline}
 .card h3 .more{float:right;margin-left:.6em}
@@ -327,6 +327,47 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
 #modal .box{max-height:94vh}
 @media (max-height:820px){ #modal .box{zoom:.9;max-height:104vh} #modal .box h2{margin-bottom:.3em} }
 
+/* ───── สาธิต s-demo ───── */
+.dm-top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px;margin:.2em 0 .9em}
+.dm-ctl{flex:1 1 260px;max-width:620px;margin:0}
+.dm-ctl > span{font-size:1.05em}
+.dm-flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr) minmax(46px,.42fr)) minmax(0,1fr);align-items:stretch;gap:6px}
+.dm-st{background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:.7em .5em;text-align:center;display:flex;flex-direction:column;align-items:center}
+.dm-st h3{margin:0 0 .4em;font-size:.95em;white-space:nowrap}
+.dm-pic{height:112px;width:100%;display:flex;align-items:center;justify-content:center}
+.dm-pic svg{width:112px;height:112px}
+.dm-val{display:block;font:700 1.35em var(--mono);color:var(--amber);margin-top:.35em;white-space:nowrap}
+.dm-st p{margin:.2em 0 0;font-size:.72em;line-height:1.5;color:var(--muted)}
+.dm-line{fill:none;stroke:var(--muted);stroke-width:3;stroke-linecap:round}
+.dm-hot{fill:var(--pink)}
+.dm-chip{fill:color-mix(in srgb,var(--violet) 22%,transparent);stroke:var(--violet);stroke-width:3}
+.dm-blade{fill:var(--cyan)}
+.dm-hub{fill:var(--ink)}
+.dm-lamps{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;width:100%;max-width:132px}
+.dm-lamps i{font:700 .8em var(--mono);font-style:normal;text-align:center;padding:.3em 0;border-radius:7px;border:1px solid var(--line);color:var(--faint)}
+.dm-lamps i.on{background:var(--amber);border-color:var(--amber);color:var(--bg);box-shadow:0 0 10px color-mix(in srgb,var(--amber) 60%,transparent)}
+.dm-gauge{width:38px;height:104px;border:3px solid var(--muted);border-radius:10px;display:flex;align-items:flex-end;padding:3px}
+.dm-gauge i{display:block;width:100%;background:var(--cyan);border-radius:5px;transition:height .15s;box-shadow:0 0 12px color-mix(in srgb,var(--cyan) 60%,transparent)}
+.dm-link{align-self:center;text-align:center;overflow:hidden;min-width:0}
+.dm-link span{display:block;font-size:.62em;white-space:nowrap}
+.dm-link svg{display:block;width:100%;height:24px;overflow:hidden}
+.dm-link path{fill:none;stroke:currentColor;stroke-width:3;stroke-dasharray:8 5;vector-effect:non-scaling-stroke;animation:dmDash .7s linear infinite}
+.dm-bits{overflow:hidden;white-space:nowrap;height:24px}
+.dm-bits i{display:inline-block;font:700 .8em/24px var(--mono);font-style:normal;white-space:pre;animation:dmRun 3s linear infinite}
+.dm-a{color:var(--cyan)}
+.dm-d{color:var(--amber)}
+.dm-off{opacity:.25}
+.dm-off path,.dm-off i{animation-play-state:paused}
+.dm-say{margin:.8em 0 .3em;padding:.6em 1em;border:1px solid color-mix(in srgb,var(--cyan) 45%,var(--line));border-radius:16px;background:var(--glass);font-weight:600;text-align:center}
+.dm-note{margin:.3em 0 0;text-align:center}
+@keyframes dmDash{to{stroke-dashoffset:-26}}
+@keyframes dmRun{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+@media (max-width:899px){
+  .dm-flow{grid-template-columns:minmax(0,1fr)}
+  .dm-link{width:150px;justify-self:center}
+}
+.dm-paused .dm-link path,.dm-paused .dm-bits i{animation-play-state:paused}
+
 </style>
 </head>
 <body>
@@ -351,6 +392,7 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
     </div>
     <div class="menu" role="navigation" aria-label="เมนูหัวข้อ">
       <button class="btn" data-goto="s-pipeline">🌍 ภาพรวม</button>
+      <button class="btn" data-goto="s-demo">▶ ลองเล่น</button>
       <button class="btn" data-goto="s-adc">⚙ ADC</button>
       <button class="btn" data-goto="s-nyquist">📈 Nyquist</button>
       <button class="btn" data-goto="s-dac">〰️ DAC</button>
@@ -374,6 +416,54 @@ body.idle #nav{opacity:0;transform:translateY(20px)}
       <div class="card clk" role="button" tabindex="0" data-detail="humid" aria-haspopup="dialog"><div class="ico">💧</div><h3>วัดความชื้น</h3><p class="muted small">เซนเซอร์ความชื้นดินแบบแอนะล็อก → <b>ADC</b> → CPU เห็นว่าดินแห้ง → เปิดปั๊มน้ำ</p><span class="more">ดูวิธีทำและโค้ด ›</span></div>
       <div class="card clk" role="button" tabindex="0" data-detail="light" aria-haspopup="dialog"><div class="ico">☀️</div><h3>วัดความสว่าง</h3><p class="muted small">LDR + ตัวต้านทาน → แรงดันเปลี่ยนตามแสง → <b>ADC</b> → CPU ปรับความสว่างไฟ</p><span class="more">ดูวิธีทำและโค้ด ›</span></div>
     </div>
+  </div>
+</section>
+
+<!-- ───── สาธิต: ร้อน → พัดลมหมุน ───── -->
+<section class="slide" id="s-demo" data-title="Live demo · ADC → CPU → DAC"
+  data-note="สไลด์นี้ให้เห็นภาพทั้งวงจร ลากแถบอุณหภูมิช้า ๆ แล้วชี้ทีละช่องจากซ้ายไปขวา เซนเซอร์ให้แรงดัน ADC แปลงเป็นตัวเลข CPU ตัดสินใจ DAC แปลงกลับเป็นแรงดัน พัดลมหมุน เริ่มที่ 22 องศาพัดลมปิด แล้วลากไป 38 องศาให้หมุนแรง สีฟ้าคือแอนะล็อก สีส้มคือดิจิทัล ตัวเลขเป็นการจำลอง">
+  <div class="wrap">
+    <p class="kicker"><i></i>Live demo · ลองเล่น</p>
+    <h2>ลากดู: ยิ่ง<span class="grad">ร้อน</span> พัดลมยิ่ง<span class="grad">หมุนเร็ว</span></h2>
+    <div class="dm-top"><label class="ctl dm-ctl"><span>🌡️ ลากเปลี่ยนอุณหภูมิห้อง = <b id="dmTV">30</b> °C</span><input type="range" id="dmT" min="20" max="40" value="30"></label><button type="button" class="btn" id="dmPause" aria-pressed="false">⏸ หยุดภาพ</button></div>
+    <div class="dm-flow">
+      <div class="dm-st">
+        <h3><span class="num">1</span>เซนเซอร์</h3>
+        <div class="dm-pic"><svg viewBox="0 0 100 100" aria-hidden="true"><rect class="dm-line" x="40" y="6" width="20" height="70" rx="10"/><circle class="dm-line" cx="50" cy="80" r="16"/><circle class="dm-hot" cx="50" cy="80" r="11"/><rect class="dm-hot" id="dmMerc" x="45" y="40" width="10" height="38" rx="4"/></svg></div>
+        <b class="dm-val" id="dmS"></b>
+        <p id="dmSSub">วัดความร้อน แล้วส่งออกเป็นแรงดันไฟ</p>
+      </div>
+      <div class="dm-link dm-a" id="dmL1"><span>แรงดันไฟ</span><svg viewBox="0 0 60 24" preserveAspectRatio="none" aria-hidden="true"><path d="M0 12 Q7.5 0 15 12 T30 12 T45 12 T60 12 T75 12 T90 12"/></svg></div>
+      <div class="dm-st">
+        <h3><span class="num">2</span>ADC</h3>
+        <div class="dm-pic"><div class="dm-lamps" id="dmLamps" aria-hidden="true"></div></div>
+        <b class="dm-val" id="dmA"></b>
+        <p id="dmASub">แปลงแรงดันเป็นตัวเลขให้ CPU อ่านได้</p>
+      </div>
+      <div class="dm-link dm-d" id="dmL2"><span>ตัวเลข</span><div class="dm-bits" aria-hidden="true"><i>1 0 1 1 0 1 0 0 1 0 1 1 0 1 0 0 </i></div></div>
+      <div class="dm-st">
+        <h3><span class="num">3</span>CPU</h3>
+        <div class="dm-pic"><svg viewBox="0 0 100 100" aria-hidden="true"><path class="dm-line" d="M36 8v14M50 8v14M64 8v14M36 78v14M50 78v14M64 78v14M8 36h14M8 50h14M8 64h14M78 36h14M78 50h14M78 64h14"/><rect class="dm-chip" x="22" y="22" width="56" height="56" rx="10"/><text id="dmFace" x="50" y="63" text-anchor="middle" font-size="34">😊</text></svg></div>
+        <b class="dm-val" id="dmC"></b>
+        <p id="dmCSub"></p>
+      </div>
+      <div class="dm-link dm-d" id="dmL3"><span>ตัวเลข</span><div class="dm-bits" aria-hidden="true"><i>1 0 1 1 0 1 0 0 1 0 1 1 0 1 0 0 </i></div></div>
+      <div class="dm-st">
+        <h3><span class="num">4</span>DAC</h3>
+        <div class="dm-pic"><div class="dm-gauge" aria-hidden="true"><i id="dmBar"></i></div></div>
+        <b class="dm-val" id="dmD"></b>
+        <p id="dmDSub">แปลงตัวเลขกลับเป็นแรงดันไฟ</p>
+      </div>
+      <div class="dm-link dm-a" id="dmL4"><span>แรงดันไฟ</span><svg viewBox="0 0 60 24" preserveAspectRatio="none" aria-hidden="true"><path d="M0 12 Q7.5 0 15 12 T30 12 T45 12 T60 12 T75 12 T90 12"/></svg></div>
+      <div class="dm-st">
+        <h3><span class="num">5</span>พัดลม</h3>
+        <div class="dm-pic"><svg viewBox="-50 -50 100 100" aria-hidden="true"><circle class="dm-line" r="46"/><g class="dm-blade" id="dmBlade"><ellipse cx="22" cy="0" rx="20" ry="10" transform="rotate(0) rotate(18 22 0)"/><ellipse cx="22" cy="0" rx="20" ry="10" transform="rotate(120) rotate(18 22 0)"/><ellipse cx="22" cy="0" rx="20" ry="10" transform="rotate(240) rotate(18 22 0)"/></g><circle class="dm-hub" r="7"/></svg></div>
+        <b class="dm-val" id="dmF"></b>
+        <p id="dmFSub">ต่อผ่านวงจรขับมอเตอร์</p>
+      </div>
+    </div>
+    <p class="dm-say" id="dmSay" aria-live="polite"></p>
+    <p class="muted small dm-note"><span class="dm-key dm-a">■</span> แอนะล็อก (ค่าต่อเนื่อง) &nbsp; <span class="dm-key dm-d">■</span> ดิจิทัล (ตัวเลข) &nbsp;·&nbsp; ตัวเลขจำลอง: ADC 10 บิต 5 V, DAC 8 บิต 3.3 V และกฎ “เกิน 25 °C ค่อยเปิดพัดลม” เป็นตัวอย่าง</p>
   </div>
 </section>
 
@@ -664,7 +754,7 @@ int value = sum / 16;</pre>
   <button id="bHome" aria-label="กลับหน้าแรก" title="หน้าแรก (Home)">🏠</button>
   <button id="prev" aria-label="สไลด์ก่อนหน้า">◀</button>
   <button id="next" aria-label="สไลด์ถัดไป">▶</button>
-  <span id="count">1 / 7</span>
+  <span id="count">1 / 8</span>
   <div id="dots" role="tablist" aria-label="เลือกสไลด์"></div>
   <button id="bRefs" aria-label="แหล่งอ้างอิง (R)" title="แหล่งอ้างอิง (R)">📚</button>
   <button id="bNotes" aria-label="โน้ตผู้พูด (N)" title="โน้ตผู้พูด (N)">📝</button>
@@ -722,9 +812,9 @@ const syncRanges = () => $$('input[type=range]').forEach(rangeFill);
 /* ───────────── ตัวจัดการแอนิเมชัน (ครั้งละหนึ่งสไลด์) ───────────── */
 const anim = { raf: 0, fn: null };
 function stopAnim(){ cancelAnimationFrame(anim.raf); anim.raf = 0; anim.fn = null; }
-function startAnim(fn){
+function startAnim(fn, always){
   stopAnim(); anim.fn = fn;
-  if (reduceMotion){ fn(2200); return; }
+  if (reduceMotion && !always){ fn(2200); return; }
   const loop = t => { if (anim.fn){ anim.fn(t); anim.raf = requestAnimationFrame(loop); } };
   anim.raf = requestAnimationFrame(loop);
 }
@@ -841,6 +931,29 @@ function dacFrame(t){
   ctx.strokeStyle = col.amber; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(lx, cy - r*0.2, r, 0, TAU); ctx.stroke();
   ctx.strokeRect(lx - r*0.38, cy + r*0.85, r*0.76, r*0.5);
   text('ความสว่าง', lx, h*0.91, col.amber);
+}
+
+/* ───────────── สาธิต: อุณหภูมิ → ADC → CPU → DAC → พัดลม ───────────── */
+const dm = { angle: 0, last: 0, t: null };
+function demoUpdate(T){
+  const volt = T*0.01, raw = Math.floor(volt/5*1024), seen = Math.round(raw*5/1024*100);
+  const cmd = clamp(Math.round((seen - 25)/15*255), 0, 255), out = cmd/256*3.3, pct = Math.round(cmd/255*100);
+  const mood = cmd === 0 ? ['😊', 'ยังไม่ร้อน → ปิดพัดลม'] : seen <= 32 ? ['😅', 'เริ่มร้อน → เปิดเบา ๆ'] : ['🥵', 'ร้อนมาก → เปิดแรง'];
+  const set = (id, v) => { $('#' + id).textContent = v; };
+  set('dmTV', T); set('dmS', volt.toFixed(2) + ' V'); set('dmA', raw); set('dmC', 'สั่ง ' + cmd); set('dmCSub', mood[1]);
+  set('dmD', out.toFixed(2) + ' V'); set('dmF', cmd ? 'หมุน ' + pct + '%' : 'หยุด'); set('dmFace', mood[0]);
+  const merc = 14 + (T - 20)/20*48, m = $('#dmMerc'); m.setAttribute('y', 78 - merc); m.setAttribute('height', merc);
+  $('#dmLamps').replaceChildren(...[...bin(raw, 10)].map(b => { const e = document.createElement('i'); e.textContent = b; if (b === '1') e.className = 'on'; return e; }));
+  $('#dmBar').style.height = (out/3.3*100) + '%';
+  $('#dmL3').classList.toggle('dm-off', !cmd); $('#dmL4').classList.toggle('dm-off', !cmd);
+  set('dmSay', 'ห้อง ' + T + ' °C → แรงดัน ' + volt.toFixed(2) + ' V → ADC ได้เลข ' + raw + ' → CPU สั่ง ' + cmd + ' → DAC จ่าย ' + out.toFixed(2) + ' V → พัดลม' + (cmd ? 'หมุน ' + pct + '%' : 'หยุด'));
+  return cmd;
+}
+function demoFrame(t){
+  const T = +$('#dmT').value;
+  if (T !== dm.t){ dm.t = T; dm.cmd = demoUpdate(T); }
+  const dt = clamp(t - dm.last, 0, 50); dm.last = t; if (!dm.paused) dm.angle = (dm.angle + dt*dm.cmd/255*0.9) % 360;
+  $('#dmBlade').setAttribute('transform', 'rotate(' + dm.angle.toFixed(1) + ')');
 }
 
 /* ───────────── Lab 1: ADC 3 ขั้นตอน ───────────── */
@@ -1222,6 +1335,7 @@ const tabDraw = { tabSteps: drawSteps, tabImg: imgDraw, tabAlias: drawAlias, tab
 const hooks = {
   's-title':    { enter: () => startAnim(heroFrame) },
   's-pipeline': { enter: () => startAnim(pipeFrame) },
+  's-demo':     { enter: () => startAnim(demoFrame, true) },   // ภาพขยับคือเนื้อหาของสไลด์นี้ จึงมีปุ่มหยุดแทน
   's-adc':      { enter: () => tabDraw[panelOf('s-adc')]?.(), leave: stepsStop },
   's-nyquist':  { enter: () => tabDraw[panelOf('s-nyquist')]?.(), leave: sndStop },
   's-dac':      { enter: () => startAnim(dacFrame) },
@@ -1326,6 +1440,12 @@ $('#stepsPlay').addEventListener('click', stepsPlay);
 $('#stepsAll').addEventListener('click', () => { stepsStop(); stepLayer = 3; drawSteps(); });
 ['fA', 'fsA'].forEach(id => $('#'+id).addEventListener('input', drawAlias));
 $('#dacR').addEventListener('input', () => dacFrame(performance.now()));
+$('#dmT').addEventListener('input', () => demoFrame(performance.now()));
+$('#dmPause').addEventListener('click', e => {
+  const b = e.currentTarget; dm.paused = !dm.paused; b.blur();
+  b.setAttribute('aria-pressed', dm.paused); b.textContent = dm.paused ? '▶ เล่นภาพ' : '⏸ หยุดภาพ';
+  $('#s-demo').classList.toggle('dm-paused', dm.paused);
+});
 $$('[data-pre]').forEach(b => b.addEventListener('click', () => { const [f, fs] = b.dataset.pre.split(','); $('#fA').value = f; $('#fsA').value = fs; drawAlias(); }));
 $$('[data-tabs]').forEach(g => $$('[data-tab]', g).forEach(b => b.addEventListener('click', () => {
   $$('[data-tab]', g).forEach(x => x.setAttribute('aria-pressed', x === b));
